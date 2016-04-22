@@ -2,6 +2,7 @@ package model;
 
 import javax.validation.constraints.Size;
 
+
 public class Address {
 		
 		@Size(min=0, max=63)
