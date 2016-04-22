@@ -30,7 +30,7 @@ public class Person extends BaseEntity{
 	 */
 	public Person(){
 		super();
-		
+
 	}
 	
 	
@@ -46,8 +46,6 @@ public class Person extends BaseEntity{
 	 */
 	public static byte[] passwordHash(String password){
 		
-		
-		
 		MessageDigest md;
 		try {
 		md = MessageDigest.getInstance("SHA-256");
@@ -60,10 +58,6 @@ public class Person extends BaseEntity{
 			e.printStackTrace();
 			return null;
 		}
-
-		
-
-
 
 	}
 	
