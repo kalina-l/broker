@@ -19,6 +19,8 @@ import de.sb.java.TypeMetadata;
 
 
 /**
+ * MOIN! 
+ * 
  * JAX-RS based REST service implementation for polymorphic entity resources. The following path and
  * method combinations are supported:
  * <ul>
