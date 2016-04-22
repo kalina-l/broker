@@ -4,4 +4,4 @@
 .classpath
 .project
 /bin/
-/META_INF/
+./META_INF/
