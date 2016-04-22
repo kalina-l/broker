@@ -1,10 +1,19 @@
 package model;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.validation.constraints.Size;
 
-public class Auction {
+/**
+ * 
+ * @author Master Programming - Group 6
+ *
+ */
+public class Auction extends BaseEntity {
 
 
+	
 	@Size(min=1, max=255)
 	private char title;
 
@@ -13,14 +22,19 @@ public class Auction {
 	private short unitCount;
 	private long askingPrice;
 	private long closureTimeStamp;
-
-
 	private Person seller;
-	private Bid[] bids;
+	private Set<Bid> bids;
 	
 	
 	public Auction(Person seller){
-		
+		super();
+		this.seller = seller;
+		this.bids = new HashSet<Bid>();
+
+	}
+	
+	protected Auction(){
+		this(null);
 	}
 	
 	
@@ -28,22 +42,26 @@ public class Auction {
 		return seller;
 	}
 	
-	public long getSellerReference() {
-		return 0;
+	public long getSellerReference() {	
+		return this.seller==null ? 0 : this.seller.getIdentity();
 	}
 
-
+	
 	public Bid getBid(Person bidder) {
-		Bid bid = null;
-		return bid;
+		for(Bid bid : bids){
+			if(bidder.getBids().contains(bid)) 
+				return bid;
+		}
+		return null;
+
 	}
 
 	public boolean isSealed(){
-		return true;
+		return isClosed() | !bids.isEmpty() ? true : false;
 	}
 	
 	public boolean isClosed(){
-		return false;
+		return System.currentTimeMillis() > this.closureTimeStamp ? true : false;
 	}
 
 	
@@ -99,6 +117,10 @@ public class Auction {
 
 	public void setUnitCount(short unitCount) {
 		this.unitCount = unitCount;
+	}
+	
+	public Set<Bid> getBids(){
+		return bids;
 	}
 
 

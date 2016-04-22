@@ -1,23 +1,24 @@
 package model;
-import javax.validation.constraints.*;
-import de.sb.java.validation.Inequal;
 
 /**
  * @author Abdel Hady Khalifa
  *
  */
-public class Bid {
+public class Bid extends BaseEntity{
 
-	@NotNull
 	private long price;
-	
-	@NotNull
 	private Auction auction;
-	
-	@NotNull
 	private Person bidder;
 	
 	
+	public Bid(Auction auction, Person bidder){
+		this.auction = auction;
+		this.bidder = bidder;
+	}
+	
+	protected Bid(){
+		this(null, null);
+	}
 	
 	
 	public long getPrice() {
@@ -33,7 +34,7 @@ public class Bid {
 	}
 	
 	public long getAuctionReference() {
-		return 0;
+		return this.auction==null ? 0 : this.auction.getIdentity();
 	}
 	
 	public Person getBidder() {
@@ -41,7 +42,8 @@ public class Bid {
 	}
 
 	public long getBidderReference() {
-		return 0;
+		return this.bidder==null ? 0 : this.bidder.getIdentity();
+
 	}
 	
 

@@ -5,34 +5,34 @@ import javax.validation.constraints.Size;
 public class Address {
 		
 		@Size(min=0, max=63)
-		private char street;
-		
+		private String street;
+
 		@Size(min=0, max=15)
-		private char postalCode;
+		private String postalCode;
 		
 		@Size(min=1, max=63)
-		private char city;
+		private String city;
 		
-		public Address(char street, char postalCode, char city){
-			//init
+		public Address(){
+
 		};
 		
-		public char getStreet() {
+		public String getStreet() {
 			return street;
 		}
-		public void setStreet(char street) {
+		public void setStreet(String street) {
 			this.street = street;
 		}
-		public char getPostalCode() {
+		public String getPostalCode() {
 			return postalCode;
 		}
-		public void setPostalCode(char postalCode) {
+		public void setPostalCode(String postalCode) {
 			this.postalCode = postalCode;
 		}
-		public char getCity() {
+		public String getCity() {
 			return city;
 		}
-		public void setCity(char city) {
+		public void setCity(String city) {
 			this.city = city;
 		}
 	}

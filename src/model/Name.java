@@ -5,28 +5,32 @@ import javax.validation.constraints.Size;
 public class Name {
 	
 	@Size(min=1, max=31)
-	private char family;
+	private String family;
 	
 	@Size(min=1, max=31)
-	private char given;
+	private String given;
 	
-	public Name(char family, char given){
-		//init
+	
+	
+	public Name(){
+		
 	}
 
-	public char getFamily() {
+	
+	
+	public String getFamily() {
 		return family;
 	}
 
-	public void setFamily(char family) {
+	public void setFamily(String family) {
 		this.family = family;
 	}
 
-	public char getGiven() {
+	public String getGiven() {
 		return given;
 	}
 
-	public void setGiven(char given) {
+	public void setGiven(String given) {
 		this.given = given;
 	}
 }

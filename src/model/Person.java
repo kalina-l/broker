@@ -2,6 +2,9 @@ package model;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.validation.constraints.*;
 // import de.sb.java.validation.Inequal;
 
@@ -11,59 +14,60 @@ import javax.validation.constraints.*;
  */
 public class Person extends BaseEntity{
 
+	
+	static private final byte[] DEFAULT_PASSWORD_HASH = passwordHash("");
+
 	@Size(min=1, max=16)
-	private char alias;	
+	private String alias;	
 	
 	@Size(min=32, max=32)
-	private byte passwordHash;
+	private byte[] passwordHash;
 	
 	private Group group;
 	private Name name;
 	private Address address;
 	private Contact contact;
-	private Auction[] auctions;	
-	private Bid[] bids;
+	private Set<Auction> auctions;	
+	private Set<Bid> bids;
+	
 	
 	
 	/**
-	 * Constructor
+	 *  Constructor
 	 */
 	public Person(){
 		super();
-
+		this.passwordHash = DEFAULT_PASSWORD_HASH.clone();
+		this.group = Group.USER;
+		this.name = new Name();
+		this.address = new Address();
+		this.contact = new Contact();
+		this.auctions = new HashSet<Auction>();	
+		this.bids = new HashSet<Bid>();
+			
 	}
-	
-	
-	/**
-	 *********** Methodes ************
-	 */
-	
 
+	
 	/**
 	 * @param password
-	 * @return
+	 * @return 
 	 * @see <a href="http://stackoverflow.com/questions/3103652/hash-string-via-sha-256-in-java">http://stackoverflow.com/questions/3103652/hash-string-via-sha-256-in-java</a>
 	 */
 	public static byte[] passwordHash(String password){
 		
 		MessageDigest md;
 		try {
-		md = MessageDigest.getInstance("SHA-256");
-		md.update(password.getBytes("UTF-8")); 	
-		byte[] digest = md.digest();
-		return digest;
+			md = MessageDigest.getInstance("SHA-256");
+			md.update(password.getBytes("UTF-8")); 	
+			byte[] digest = md.digest();
+			return digest;
 		
 		} catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
+			//Programmabbruch wenn eine Exception auftritt die nicht auftreten kann
+			throw new AssertionError();		
 		}
-
 	}
 	
-	/**
-	 *********** Getter and Setter ************
-	 */
 	
 	/**
 	 * @return
@@ -79,7 +83,20 @@ public class Person extends BaseEntity{
 		this.group = group;
 	}
 
-
+	/**
+	 * @return 
+	 */
+	public byte[] getPasswordHash(){
+		return passwordHash;
+	}
+	
+	/**
+	 * @param passwordHash
+	 */
+	public void setPasswordHash(byte[] passwordHash){
+		this.passwordHash = passwordHash;
+	}
+	
 	/**
 	 * @return
 	 */
@@ -94,7 +111,6 @@ public class Person extends BaseEntity{
 		this.name = name;
 	}
 
-
 	/**
 	 * @return
 	 */
@@ -108,8 +124,7 @@ public class Person extends BaseEntity{
 	public void setAddress(Address address) {
 		this.address = address;
 	}
-
-
+	
 	/**
 	 * @return
 	 */
@@ -123,51 +138,20 @@ public class Person extends BaseEntity{
 	public void setContact(Contact contact) {
 		this.contact = contact;
 	}
-
 	
 	/**
 	 * @return
 	 */
-	public Auction[] getAuctions() {
+	public Set<Auction> getAuctions() {
 		return auctions;
 	}
 
-
-	/**
-	 * @param auctions
-	 */
-	public void setAuctions(Auction[] auctions) {
-		this.auctions = auctions;
-	}
-
-
 	/**
 	 * @return
 	 */
-	public Bid[] getBids() {
+	public Set<Bid> getBids() {
 		return bids;
 	}
-
-
-	/**
-	 * @param bids
-	 */
-	public void setBids(Bid[] bids) {
-		this.bids = bids;
-	}
-
-
-
-
-	/**
-	 *********** INNER CLASSES ************
-	 */
-
-	public static enum Group{
-		ADMIN, USER;				
-		}
-		
-	}
-	
+}
 
 	
