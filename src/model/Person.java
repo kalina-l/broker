@@ -9,7 +9,8 @@ import javax.validation.constraints.*;
 // import de.sb.java.validation.Inequal;
 
 /**
- * @author Abdel Hady Khalifa
+ * Person who can bid on auctions
+ * @author Master Programming Group 6
  *
  */
 public class Person extends BaseEntity{

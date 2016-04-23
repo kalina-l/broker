@@ -2,6 +2,11 @@ package model;
 
 import javax.validation.constraints.Size;
 
+/**
+ * Name of a Person
+ * @author Master Programming Group 6
+ *
+ */
 public class Name {
 	
 	@Size(min=1, max=31)

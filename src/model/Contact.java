@@ -4,6 +4,11 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+/**
+ * Contact of a Person
+ * @author Master Programming Group 6
+ *
+ */
 public class Contact {
 
 	@Pattern(regexp="\b^[A-Z0-9._%+-]+@[A-Z0-9.-]+\b.[A-Z]{2,63}\b$")

@@ -4,6 +4,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.validation.constraints.Size;
 
+/**
+ * Abstract BaseEntity super class for all persitance entities. 
+ * @author Master Programming Group 6
+ *
+ */
 public abstract class BaseEntity implements Comparable<BaseEntity>{
 
 	private static final AtomicInteger count = new AtomicInteger(0);

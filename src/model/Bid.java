@@ -1,7 +1,8 @@
 package model;
 
 /**
- * @author Abdel Hady Khalifa
+ * A bid of per Person per Auction
+ * @author Master Programming Group 6
  *
  */
 public class Bid extends BaseEntity{

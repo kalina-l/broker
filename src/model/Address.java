@@ -3,6 +3,11 @@ package model;
 import javax.validation.constraints.Size;
 
 
+/**
+ * Address of a Person
+ * @author Master Programming Group 6
+ *
+ */
 public class Address {
 		
 		@Size(min=0, max=63)

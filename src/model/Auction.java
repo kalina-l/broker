@@ -6,8 +6,8 @@ import java.util.Set;
 import javax.validation.constraints.Size;
 
 /**
- * 
- * @author Master Programming - Group 6
+ * An Auction is open for a specific time.
+ * @author Master Programming Group 6
  *
  */
 public class Auction extends BaseEntity {
