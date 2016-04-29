@@ -12,7 +12,7 @@ import javax.validation.constraints.Size;
  */
 public class Auction extends BaseEntity {
 
-
+	static private final long AUCTION_DURATION = 100000;
 	
 	@Size(min=1, max=255)
 	private char title;
@@ -30,7 +30,7 @@ public class Auction extends BaseEntity {
 		super();
 		this.seller = seller;
 		this.bids = new HashSet<Bid>();
-
+		this.closureTimeStamp = this.getCreationTimeStamp() + AUCTION_DURATION;
 	}
 	
 	protected Auction(){

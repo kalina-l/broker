@@ -1,8 +1,5 @@
 package model;
 import java.lang.Comparable;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.validation.constraints.Size;
 
 /**
  * Abstract BaseEntity super class for all persitance entities. 
@@ -10,8 +7,6 @@ import javax.validation.constraints.Size;
  *
  */
 public abstract class BaseEntity implements Comparable<BaseEntity>{
-
-	private static final AtomicInteger count = new AtomicInteger(0);
 	
 	private long identity;
 	private int version;
@@ -19,7 +14,7 @@ public abstract class BaseEntity implements Comparable<BaseEntity>{
 	
 	public BaseEntity(){
 
-		this.identity = count.incrementAndGet();
+		this.identity = 0;
 		this.version = 1;
 		this.creationTimeStamp = System.currentTimeMillis();
 		
