@@ -13,7 +13,6 @@ public abstract class BaseEntity implements Comparable<BaseEntity>{
 
 	private static final AtomicInteger count = new AtomicInteger(0);
 	
-	@Size(min=1, max=63)
 	private long identity;
 	private int version;
 	private long creationTimeStamp;
