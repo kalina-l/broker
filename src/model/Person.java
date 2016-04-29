@@ -5,8 +5,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.validation.Valid;
 import javax.validation.constraints.*;
-// import de.sb.java.validation.Inequal;
 
 /**
  * Person who can bid on auctions
@@ -18,36 +18,31 @@ public class Person extends BaseEntity{
 	
 	static private final byte[] DEFAULT_PASSWORD_HASH = passwordHash("");
 
+	@NotNull
 	@Size(min=1, max=16)
 	private String alias;	
 	
 	@Size(min=32, max=32)
 	private byte[] passwordHash;
 	
+	@NotNull
 	private Group group;
+	
+	@NotNull
+	@Valid
 	private Name name;
+	
+	@NotNull
+	@Valid
 	private Address address;
+	
+	@NotNull
+	@Valid
 	private Contact contact;
+	
 	private Set<Auction> auctions;	
 	private Set<Bid> bids;
 	
-	
-	
-	/**
-	 *  Constructor
-	 */
-	public Person(){
-		super();
-		this.passwordHash = DEFAULT_PASSWORD_HASH.clone();
-		this.group = Group.USER;
-		this.name = new Name();
-		this.address = new Address();
-		this.contact = new Contact();
-		this.auctions = new HashSet<Auction>();	
-		this.bids = new HashSet<Bid>();
-			
-	}
-
 	
 	/**
 	 * @param password
@@ -69,6 +64,19 @@ public class Person extends BaseEntity{
 		}
 	}
 	
+
+	public Person(){
+		super();
+		this.passwordHash = DEFAULT_PASSWORD_HASH.clone();
+		this.group = Group.USER;
+		this.name = new Name();
+		this.address = new Address();
+		this.contact = new Contact();
+		this.auctions = new HashSet<Auction>();	
+		this.bids = new HashSet<Bid>();
+			
+	}
+
 	
 	/**
 	 * @return
@@ -105,12 +113,6 @@ public class Person extends BaseEntity{
 		return name;
 	}
 
-	/**
-	 * @param name
-	 */
-	public void setName(Name name) {
-		this.name = name;
-	}
 
 	/**
 	 * @return
@@ -119,13 +121,7 @@ public class Person extends BaseEntity{
 		return address;
 	}
 
-	/**
-	 * @param address
-	 */
-	public void setAddress(Address address) {
-		this.address = address;
-	}
-	
+
 	/**
 	 * @return
 	 */
@@ -133,13 +129,7 @@ public class Person extends BaseEntity{
 		return contact;
 	}
 
-	/**
-	 * @param contact
-	 */
-	public void setContact(Contact contact) {
-		this.contact = contact;
-	}
-	
+
 	/**
 	 * @return
 	 */
@@ -152,6 +142,17 @@ public class Person extends BaseEntity{
 	 */
 	public Set<Bid> getBids() {
 		return bids;
+	}
+	
+	
+	public Bid getBid(Auction auction) {
+		for(Bid bid : bids){
+			if(auction.getIdentity() == bid.getAuction().getIdentity()) 
+				return bid;
+		}
+		
+		return null;
+
 	}
 }
 

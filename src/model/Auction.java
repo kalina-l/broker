@@ -3,26 +3,40 @@ package model;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import de.sb.java.validation.Inequal;
 
 /**
  * An Auction is open for a specific time.
  * @author Master Programming Group 6
  *
  */
+@Inequal(leftAccessPath = { "closureTimestamp" }, rightAccessPath = { "creationTimestamp" }, operator = Inequal.Operator.GREATER)
 public class Auction extends BaseEntity {
 
-	static private final long AUCTION_DURATION = 100000;
+	static private final long MONTH_MILLIES = 30*24*60*60*1000L;
 	
+	@NotNull
 	@Size(min=1, max=255)
-	private char title;
-
+	private String title;
+	
+	@NotNull
 	@Size(min=1, max=8189)
-	private char description;
+	private String description;
+	
 	private short unitCount;
+	
+	@Min(0)
 	private long askingPrice;
+	
 	private long closureTimeStamp;
+	
+	@NotNull
 	private Person seller;
+	
 	private Set<Bid> bids;
 	
 	
@@ -30,7 +44,7 @@ public class Auction extends BaseEntity {
 		super();
 		this.seller = seller;
 		this.bids = new HashSet<Bid>();
-		this.closureTimeStamp = this.getCreationTimeStamp() + AUCTION_DURATION;
+		this.closureTimeStamp = this.getCreationTimeStamp() + MONTH_MILLIES;
 	}
 	
 	protected Auction(){
@@ -45,47 +59,22 @@ public class Auction extends BaseEntity {
 	public long getSellerReference() {	
 		return this.seller==null ? 0 : this.seller.getIdentity();
 	}
-
 	
-	public Bid getBid(Person bidder) {
-		for(Bid bid : bids){
-			if(bidder.getBids().contains(bid)) 
-				return bid;
-		}
-		return null;
-
-	}
-
-	public boolean isSealed(){
-		return isClosed() | !bids.isEmpty() ? true : false;
-	}
-	
-	public boolean isClosed(){
-		return System.currentTimeMillis() > this.closureTimeStamp ? true : false;
-	}
-
-	
-	
-	/**
-	 * Getter Setter
-	 */
-	
-
-	public char getTitle() {
+	public String getTitle() {
 		return title;
 	}
 
 
-	public void setTitle(char title) {
+	public void setTitle(String title) {
 		this.title = title;
 	}
 	
-	public char getDescription() {
+	public String getDescription() {
 		return description;
 	}
 
 
-	public void setDescription(char description) {
+	public void setDescription(String description) {
 		this.description = description;
 	}
 
@@ -123,5 +112,24 @@ public class Auction extends BaseEntity {
 		return bids;
 	}
 
+	
+	public Bid getBid(Person bidder) {
+		for(Bid bid : bids){
+			if(bidder.getIdentity() == bid.getBidder().getIdentity()) 
+				return bid;
+		}
+		return null;
+
+	}
+
+	//virtual Properties
+	public boolean isSealed(){
+		return isClosed() | !bids.isEmpty() ? true : false;
+	}
+	
+	
+	public boolean isClosed(){
+		return System.currentTimeMillis() > this.closureTimeStamp ? true : false;
+	}
 
 }

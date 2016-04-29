@@ -1,6 +1,8 @@
 package model;
 import java.lang.Comparable;
 
+import javax.validation.constraints.Min;
+
 /**
  * Abstract BaseEntity super class for all persitance entities. 
  * @author Master Programming Group 6
@@ -8,8 +10,12 @@ import java.lang.Comparable;
  */
 public abstract class BaseEntity implements Comparable<BaseEntity>{
 	
+	@Min(0)
 	private long identity;
+	
+	@Min(1)
 	private int version;
+	
 	private long creationTimeStamp;
 	
 	public BaseEntity(){
@@ -19,6 +25,7 @@ public abstract class BaseEntity implements Comparable<BaseEntity>{
 		this.creationTimeStamp = System.currentTimeMillis();
 		
 	}
+	
 	
 	@Override
 	public int compareTo(BaseEntity other){

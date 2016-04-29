@@ -1,16 +1,24 @@
 package model;
 
+import javax.validation.constraints.Min;
+
+import de.sb.java.validation.Inequal;
+
 /**
  * A bid of per Person per Auction
  * @author Master Programming Group 6
  *
  */
+@Inequal(leftAccessPath = { "price" }, rightAccessPath = { "auction", "askingPrice" } , operator = Inequal.Operator.GREATER_EQUAL )
+@Inequal(leftAccessPath = { "bidder" , "identity" }, rightAccessPath = { "auction", "seller" , "identity" } , operator = Inequal.Operator.NOT_EQUAL)
 public class Bid extends BaseEntity{
 
+	@Min(0)
 	private long price;
+	
+
 	private Auction auction;
 	private Person bidder;
-	
 	
 	public Bid(Auction auction, Person bidder){
 		this.auction = auction;

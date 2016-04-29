@@ -16,6 +16,7 @@ public class Contact {
 	@Size(min=1, max=63)
 	private String email;
 	
+	@NotNull
 	@Size(min=0, max=63)
 	private String phone;
 	

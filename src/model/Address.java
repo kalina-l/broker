@@ -1,5 +1,6 @@
 package model;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 
@@ -9,13 +10,15 @@ import javax.validation.constraints.Size;
  *
  */
 public class Address {
-		
+		@NotNull
 		@Size(min=0, max=63)
 		private String street;
-
+		
+		@NotNull
 		@Size(min=0, max=15)
 		private String postalCode;
 		
+		@NotNull
 		@Size(min=1, max=63)
 		private String city;
 		
