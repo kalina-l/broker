@@ -1,6 +1,13 @@
 package model;
-import java.lang.Comparable;
-
+import javax.persistence.Column;
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.Table;
 import javax.validation.constraints.Min;
 
 /**
@@ -8,15 +15,24 @@ import javax.validation.constraints.Min;
  * @author Master Programming Group 6
  *
  */
+@Entity
+@Table(schema = "broker", name = "baseentity")
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "discriminator", discriminatorType = DiscriminatorType.STRING)
 public abstract class BaseEntity implements Comparable<BaseEntity>{
 	
+	@Id
+	@GeneratedValue
 	@Min(0)
 	private long identity;
 	
+	@Column(name="version", nullable = false, updatable = false)
 	@Min(1)
 	private int version;
 	
+	@Column(name="creationTimestamp", nullable = false, updatable = false)
 	private long creationTimeStamp;
+	
 	
 	public BaseEntity(){
 

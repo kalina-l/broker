@@ -3,6 +3,14 @@ package model;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Table;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -14,29 +22,40 @@ import de.sb.java.validation.Inequal;
  * @author Master Programming Group 6
  *
  */
+@Entity
+@Table(schema = "broker", name = "auction")
+@PrimaryKeyJoinColumn(name = "auctionIdentity")
 @Inequal(leftAccessPath = { "closureTimestamp" }, rightAccessPath = { "creationTimestamp" }, operator = Inequal.Operator.GREATER)
 public class Auction extends BaseEntity {
 
 	static private final long MONTH_MILLIES = 30*24*60*60*1000L;
 	
+	@Column(name = "title", nullable = false, updatable = true, length = 255)
 	@NotNull
 	@Size(min=1, max=255)
 	private String title;
 	
+	@Column(name = "description", nullable = false, updatable = true, length = 8189)
 	@NotNull
 	@Size(min=1, max=8189)
 	private String description;
 	
+	@Column(name = "unitCount", nullable = false, updatable = true)
 	private short unitCount;
 	
+	@Column(name = "askingPrice", nullable = false, updatable = true)
 	@Min(0)
 	private long askingPrice;
 	
+	@Column(name = "closureTimestamp", nullable = false, updatable = true)
 	private long closureTimeStamp;
 	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "sellerReference", nullable = false, updatable = false)
 	@NotNull
 	private Person seller;
 	
+	@OneToMany(mappedBy = "auction")
 	private Set<Bid> bids;
 	
 	

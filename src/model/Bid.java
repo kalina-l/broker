@@ -1,5 +1,12 @@
 package model;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Table;
 import javax.validation.constraints.Min;
 
 import de.sb.java.validation.Inequal;
@@ -9,16 +16,26 @@ import de.sb.java.validation.Inequal;
  * @author Master Programming Group 6
  *
  */
+@Entity
+@Table(schema = "broker", name = "bid")
+@PrimaryKeyJoinColumn(name = "bidIdentity")
 @Inequal(leftAccessPath = { "price" }, rightAccessPath = { "auction", "askingPrice" } , operator = Inequal.Operator.GREATER_EQUAL )
 @Inequal(leftAccessPath = { "bidder" , "identity" }, rightAccessPath = { "auction", "seller" , "identity" } , operator = Inequal.Operator.NOT_EQUAL)
 public class Bid extends BaseEntity{
 
+	@Column(name="price", nullable = false, updatable = true)
 	@Min(0)
 	private long price;
 	
-
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "auctionReference", nullable = false, updatable = false)
 	private Auction auction;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "bidderReference", nullable = false, updatable = false)
 	private Person bidder;
+	
+	
 	
 	public Bid(Auction auction, Person bidder){
 		this.auction = auction;

@@ -1,5 +1,7 @@
 package model;
 
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -8,11 +10,15 @@ import javax.validation.constraints.Size;
  * @author Master Programming Group 6
  *
  */
+@Embeddable
 public class Name {
+
+	@Column(name="familyName", nullable = false, updatable = true, length = 31)
 	@NotNull
 	@Size(min=1, max=31)
 	private String family;
 	
+	@Column(name="givenName", nullable = false, updatable = true, length = 31)
 	@NotNull
 	@Size(min=1, max=31)
 	private String given;

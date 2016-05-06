@@ -5,42 +5,66 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.Column;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.OneToMany;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Table;
 import javax.validation.Valid;
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  * Person who can bid on auctions
  * @author Master Programming Group 6
  *
  */
+@Entity
+@Table(schema = "broker", name = "person")
+@PrimaryKeyJoinColumn(name = "personIdentity")
 public class Person extends BaseEntity{
 
 	
 	static private final byte[] DEFAULT_PASSWORD_HASH = passwordHash("");
 
+	@Column(name = "alias", nullable = false, updatable = false, length = 16, unique = true)
 	@NotNull
 	@Size(min=1, max=16)
 	private String alias;	
 	
+	@Column(name = "passwordHash", nullable = false, updatable = true, length = 32)
 	@Size(min=32, max=32)
 	private byte[] passwordHash;
 	
+	@Column(name = "groupAlias", nullable = false, updatable = true)
+	@Enumerated(EnumType.STRING)
 	@NotNull
 	private Group group;
 	
+	@Embedded
 	@NotNull
 	@Valid
 	private Name name;
 	
+	@Embedded
 	@NotNull
 	@Valid
 	private Address address;
 	
+	@Embedded
 	@NotNull
 	@Valid
 	private Contact contact;
 	
+	//Relationsfelder
+	
+	@OneToMany(mappedBy ="seller")
 	private Set<Auction> auctions;	
+	
+	@OneToMany(mappedBy ="bidder")
 	private Set<Bid> bids;
 	
 	
