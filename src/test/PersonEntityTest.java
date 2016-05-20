@@ -79,7 +79,6 @@ public class PersonEntityTest extends EntityTest{
 		EntityManagerFactory  emf = super.getEntityManagerFactory();
 		EntityManager em = emf.createEntityManager();
 		
-		
 		/*
 		 * Create new Person
 		 */
@@ -108,17 +107,16 @@ public class PersonEntityTest extends EntityTest{
 		}
 		
 		
-		
 		/*
 		 * Update Street of person
 		 */
 		em.getTransaction().begin();
 		
-		person = em.find(Person.class, person.getIdentity());
+		Person personFromDB = em.find(Person.class, person.getIdentity());
 
-		person.getAddress().setStreet("NewStreet 23");
+		personFromDB.getAddress().setStreet("NewStreet 23");
 		
-		em.persist(person);
+		em.persist(personFromDB);
 		try{
 			em.getTransaction().commit();
 		}
@@ -126,8 +124,26 @@ public class PersonEntityTest extends EntityTest{
 			if (em.getTransaction().isActive()) {
 				em.getTransaction().rollback();
 			}
-		}	
+		}
+		Assert.assertEquals(person, personFromDB);
+		Assert.assertEquals("NewStreet 23", person.getAddress().getStreet());
+		Assert.assertNotEquals("Testallee 13", person.getAddress().getStreet());
 		
+		/*
+		 * Delete person
+		 */
+		em.getTransaction().begin(); 		
+		em.remove(person);
+		person = em.find(Person.class, person.getIdentity());
+		try{
+			em.getTransaction().commit();
+		}
+		finally{
+			if (em.getTransaction().isActive()) {
+				em.getTransaction().rollback();
+			}
+		}
+		Assert.assertNull(person);
 		em.close();
 	}
 	
