@@ -4,6 +4,7 @@ import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static model.Group.ADMIN;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;
@@ -13,9 +14,10 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+
+import de.sb.java.TypeMetadata;
 import model.BaseEntity;
 import model.Person;
-import de.sb.java.TypeMetadata;
 
 
 /**

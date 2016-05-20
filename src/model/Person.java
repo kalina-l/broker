@@ -136,12 +136,6 @@ public class Person extends BaseEntity{
 		this.passwordHash = passwordHash;
 	}
 	
-	public void setAlias(String alias){
-		this.alias = alias;
-	}
-	public String getAlias(){
-		return alias;
-	}
 	
 	/**
 	 * @return

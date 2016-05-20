@@ -1,19 +1,12 @@
 package test;
 
-import java.util.Set;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.validation.*;
+import javax.validation.Validator;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import model.Address;
-import model.Auction;
-import model.Bid;
-import model.Contact;
-import model.Name;
 import model.Person;
 
 public class PersonEntityTest extends EntityTest{
@@ -70,7 +63,7 @@ public class PersonEntityTest extends EntityTest{
 		person.getAddress().setCity("Berlin");
 		
 		// incorrect email
-		person.getContact().setEmail("§&%/");
+		person.getContact().setEmail("ï¿½&%/");
 		Assert.assertEquals(1, v.validate(person).size());
 		person.getContact().setEmail("annika.maier@gmail.com");
 		
@@ -83,11 +76,15 @@ public class PersonEntityTest extends EntityTest{
 	@Test
 	public void testLifeCycle(){
 		
-		
 		EntityManagerFactory  emf = super.getEntityManagerFactory();
 		EntityManager em = emf.createEntityManager();
 		
+		
+		/*
+		 * Create new Person
+		 */
 		em.getTransaction().begin();
+		
 		Person person =  new Person();
 		person.setAlias("aliasTest");
 		person.getName().setGiven("Troy");
@@ -99,10 +96,38 @@ public class PersonEntityTest extends EntityTest{
 		person.getContact().setPhone("012345678");
 		
 		em.persist(person);
-		em.getTransaction().commit();
-		
-		this.getWasteBasket().add(person.getIdentity());
 
+		try{
+			em.getTransaction().commit();
+		}
+		finally{
+			if (em.getTransaction().isActive()) {
+				em.getTransaction().rollback();
+			}
+			this.getWasteBasket().add(person.getIdentity());
+		}
+		
+		
+		
+		/*
+		 * Update Street of person
+		 */
+		em.getTransaction().begin();
+		
+		person = em.find(Person.class, person.getIdentity());
+
+		person.getAddress().setStreet("NewStreet 23");
+		
+		em.persist(person);
+		try{
+			em.getTransaction().commit();
+		}
+		finally{
+			if (em.getTransaction().isActive()) {
+				em.getTransaction().rollback();
+			}
+		}	
+		
 		em.close();
 	}
 	
