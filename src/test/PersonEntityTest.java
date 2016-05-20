@@ -103,9 +103,8 @@ public class PersonEntityTest extends EntityTest{
 			if (em.getTransaction().isActive()) {
 				em.getTransaction().rollback();
 			}
-			this.getWasteBasket().add(person.getIdentity());
+			
 		}
-		
 		
 		/*
 		 * Update Street of person
@@ -144,6 +143,7 @@ public class PersonEntityTest extends EntityTest{
 			}
 		}
 		Assert.assertNull(person);
+	
 		em.close();
 	}
 	

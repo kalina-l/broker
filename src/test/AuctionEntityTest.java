@@ -20,7 +20,6 @@ public class AuctionEntityTest extends EntityTest{
 		auction.setTitle("h");
 		auction.setDescription("i");
 		auction.setAskingPrice(0);
-		auction.setClosureTimeStamp(auction.getCreationTimeStamp() + 5);
 	
 		Assert.assertEquals(0, v.validate(auction).size());
 		
@@ -44,9 +43,5 @@ public class AuctionEntityTest extends EntityTest{
 		auction.setAskingPrice(-1);
 		Assert.assertEquals(1, v.validate(auction).size());
 		auction.setAskingPrice(0);
-		
-		//incorrect closure timestamp
-		auction.setClosureTimeStamp(auction.getCreationTimeStamp() - 5);
-		Assert.assertEquals(1, v.validate(auction).size());		
 	}	
 }

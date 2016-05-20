@@ -42,7 +42,7 @@ public class BidEntityTest extends EntityTest{
 		em.getTransaction().begin();
 		
 		Person seller = new Person();
-		seller.setAlias("aliasTest");
+		seller.setAlias("aliasSeller");
 		seller.getName().setGiven("Troy");
 		seller.getName().setFamily("Testa");
 		seller.getAddress().setCity("Hamburg");
@@ -52,21 +52,41 @@ public class BidEntityTest extends EntityTest{
 		seller.getContact().setPhone("012345678");
 		
 		Person bidder = new Person();
-		bidder.setAlias("aliasTest");
-		bidder.getName().setGiven("Troy");
-		bidder.getName().setFamily("Testa");
-		bidder.getAddress().setCity("Hamburg");
-		bidder.getAddress().setStreet("Testallee 13");
-		bidder.getAddress().setPostalCode("12345");
-		bidder.getContact().setEmail("testa@test.com");
-		bidder.getContact().setPhone("012345678");
+		bidder.setAlias("aliasBidder");
+		bidder.getName().setGiven("Sara");
+		bidder.getName().setFamily("Bauer");
+		bidder.getAddress().setCity("Stuttgart");
+		bidder.getAddress().setStreet("Siegerstr. 1");
+		bidder.getAddress().setPostalCode("54321");
+		bidder.getContact().setEmail("testaaa@test.com");
+		bidder.getContact().setPhone("98765421");
 		
 		Auction auction = new Auction(seller);
+		auction.setTitle("super auction");
+		auction.setDescription("buy super great thing, cheap and fun");
+		auction.setAskingPrice(10);
 
 		
 		Bid bid = new Bid(auction, bidder);
+		bid.setPrice(15);
+		
+//		em.persist(seller);
+//		em.persist(bidder);
+//		em.persist(auction);
 		em.persist(bid);
-		em.getTransaction().commit();
+		
+		try{
+			em.getTransaction().commit();
+		}
+		finally{
+			if (em.getTransaction().isActive()) {
+				em.getTransaction().rollback();
+			}	
+			this.getWasteBasket().add(seller.getIdentity());
+			this.getWasteBasket().add(bidder.getIdentity());
+			this.getWasteBasket().add(auction.getIdentity());
+			this.getWasteBasket().add(bid.getIdentity());
+		}
 		
 		em.close();
 	}
