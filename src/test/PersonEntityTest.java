@@ -1,8 +1,10 @@
 package test;
 
+import java.util.Set;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.validation.Validator;
+import javax.validation.*;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -17,36 +19,62 @@ public class PersonEntityTest extends EntityTest{
 	public void testConstraints(){
 		Validator v = this.getEntityValidatorFactory().getValidator();
 		Person person = new Person();
-		
-		// password hash
+		// all correct values
+		person.setAlias("shoppingqueen");
+		person.getName().setFamily("Maier");
+		person.getName().setGiven("Annika");
+		person.getAddress().setStreet("Warschauerstr.");
+		person.getAddress().setPostalCode("10429");
+		person.getAddress().setCity("Berlin");
+		person.getContact().setEmail("annika.maier@gmail.com");
+		person.getContact().setPhone("00375934639");
 		person.setPasswordHash(new byte[32]);
+		
 		Assert.assertEquals(0, v.validate(person).size());
+		
+		// incorrect password hash
 		person.setPasswordHash(new byte[31]);
 		Assert.assertEquals(1, v.validate(person).size());
+		person.setPasswordHash(new byte[32]);
 		
-		// name - family
-		person.getName().setFamily("Maier");
-		Assert.assertEquals(0, v.validate(person).size());
+		// incorrect name - family
 		person.getName().setFamily("");
 		Assert.assertEquals(1, v.validate(person).size());
 		person.getName().setFamily("Maierowskimaierowskimaierowskimaierowski");
 		Assert.assertEquals(1, v.validate(person).size());
+		person.getName().setFamily("Maier");
 		
-		// name - given
-		person.getName().setGiven("Annika");
-		Assert.assertEquals(0, v.validate(person).size());
+		// incorrect name - given
 		person.getName().setGiven("");
 		Assert.assertEquals(1, v.validate(person).size());
 		person.getName().setGiven("Annikaannikaannikaannikaannikaannika");
 		Assert.assertEquals(1, v.validate(person).size());
+		person.getName().setGiven("Annika");
 		
-		// address - street
+		// incorrect address - street
+		person.getAddress().setStreet("WarschauerstrWarschauerstrWarschauerstrWarschauerstrWarschauerstr.");
+		Assert.assertEquals(1, v.validate(person).size());
 		person.getAddress().setStreet("Warschauerstr.");
-		Assert.assertEquals(0, v.validate(person).size());
 		
-		// address - postCode
+		// incorrect address - postCode
+		person.getAddress().setPostalCode("1042910429104291");
+		Assert.assertEquals(1, v.validate(person).size());
 		person.getAddress().setPostalCode("10429");
-		Assert.assertEquals(0, v.validate(person).size());
+		
+		// incorrect addres - city
+		person.getAddress().setCity("");
+		Assert.assertEquals(1, v.validate(person).size());
+		person.getAddress().setCity("Berlin");
+		
+		// incorrect email
+		person.getContact().setEmail("§&%/");
+		Assert.assertEquals(1, v.validate(person).size());
+		person.getContact().setEmail("annika.maier@gmail.com");
+		
+		// incorrect phone
+		person.getContact().setPhone("003759346390037593463900375934639003759346390037593463900375934639");
+		Assert.assertEquals(1, v.validate(person).size());
+		person.getContact().setPhone("00375934639");
 	}
 	
 	@Test

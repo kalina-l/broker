@@ -15,7 +15,10 @@ import javax.validation.constraints.Size;
 public class Contact {
 
 	@Column(name="email", nullable = false, updatable = true, length = 63)
-	@Pattern(regexp="\b^[A-Z0-9._%+-]+@[A-Z0-9.-]+\b.[A-Z]{2,63}\b$")
+	@Pattern(regexp="[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\."
+	        +"[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@"
+	        +"(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?",
+	             message="{invalid.email}") // https://docs.oracle.com/cd/E19798-01/821-1841/gkahq/index.html
 	@NotNull
 	@Size(min=1, max=63)
 	private String email;
