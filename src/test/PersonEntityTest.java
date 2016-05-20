@@ -7,8 +7,11 @@ import javax.validation.Validator;
 import org.junit.Assert;
 import org.junit.Test;
 
+import model.Address;
 import model.Auction;
 import model.Bid;
+import model.Contact;
+import model.Name;
 import model.Person;
 
 public class PersonEntityTest extends EntityTest{
@@ -52,6 +55,27 @@ public class PersonEntityTest extends EntityTest{
 	@Test
 	public void testLifeCycle(){
 		
+		
+		EntityManagerFactory  emf = super.getEntityManagerFactory();
+		EntityManager em = emf.createEntityManager();
+		
+		em.getTransaction().begin();
+		Person person =  new Person();
+		person.setAlias("aliasTest");
+		person.getName().setGiven("Troy");
+		person.getName().setFamily("Testa");
+		person.getAddress().setCity("Hamburg");
+		person.getAddress().setStreet("Testallee 13");
+		person.getAddress().setPostalCode("12345");
+		person.getContact().setEmail("testa@test.com");
+		person.getContact().setPhone("012345678");
+		
+		em.persist(person);
+		em.getTransaction().commit();
+		
+		this.getWasteBasket().add(person.getIdentity());
+
+		em.close();
 	}
 	
 }

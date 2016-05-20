@@ -4,6 +4,7 @@ import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
@@ -22,7 +23,7 @@ import javax.validation.constraints.Min;
 public abstract class BaseEntity implements Comparable<BaseEntity>{
 	
 	@Id
-	@GeneratedValue
+	@GeneratedValue (strategy=GenerationType.IDENTITY)
 	@Min(0)
 	private long identity;
 	
