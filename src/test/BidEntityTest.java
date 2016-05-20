@@ -39,6 +39,10 @@ public class BidEntityTest extends EntityTest{
 		EntityManagerFactory  emf = super.getEntityManagerFactory();
 		EntityManager em = emf.createEntityManager();
 		
+		/*
+		 * Create bid ressources. 
+		 */
+		
 		em.getTransaction().begin();
 		
 		Person seller = new Person();
@@ -61,19 +65,8 @@ public class BidEntityTest extends EntityTest{
 		bidder.getContact().setEmail("testaaa@test.com");
 		bidder.getContact().setPhone("98765421");
 		
-		Auction auction = new Auction(seller);
-		auction.setTitle("super auction");
-		auction.setDescription("buy super great thing, cheap and fun");
-		auction.setAskingPrice(10);
-
-		
-		Bid bid = new Bid(auction, bidder);
-		bid.setPrice(15);
-		
-//		em.persist(seller);
-//		em.persist(bidder);
-//		em.persist(auction);
-		em.persist(bid);
+		em.persist(seller);
+		em.persist(bidder);
 		
 		try{
 			em.getTransaction().commit();
@@ -84,10 +77,68 @@ public class BidEntityTest extends EntityTest{
 			}	
 			this.getWasteBasket().add(seller.getIdentity());
 			this.getWasteBasket().add(bidder.getIdentity());
+		}
+		
+		/*
+		 * Create auction. 
+		 */
+		
+		em.getTransaction().begin();
+		Auction auction = new Auction(seller);
+		auction.setTitle("super auction");
+		auction.setDescription("buy super great thing, cheap and fun");
+		auction.setAskingPrice(10);
+		em.persist(auction);
+		
+		try{
+			em.getTransaction().commit();
+		}
+		finally{
+			if (em.getTransaction().isActive()) {
+				em.getTransaction().rollback();
+			}
 			this.getWasteBasket().add(auction.getIdentity());
+		}
+		
+		/*
+		 * Create bid. 
+		 */
+		
+		em.getTransaction().begin();
+		
+		Bid bid = new Bid(auction, bidder);
+		bid.setPrice(15);
+		em.persist(bid);
+		
+		try{
+			em.getTransaction().commit();
+		}
+		finally{
+			if (em.getTransaction().isActive()) {
+				em.getTransaction().rollback();
+			}
 			this.getWasteBasket().add(bid.getIdentity());
 		}
 		
+		/*
+		 * Update bid.
+		 */
+		em.getTransaction().begin();
+		
+		bid = em.find(Bid.class, bid.getIdentity());
+
+		bid.setPrice(20);
+		
+		em.persist(bid);
+		try{
+			em.getTransaction().commit();
+		}
+		finally{
+			if (em.getTransaction().isActive()) {
+				em.getTransaction().rollback();
+			}
+		}
+		Assert.assertEquals(20, bid.getPrice());
 		em.close();
 	}
 

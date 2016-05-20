@@ -1,5 +1,7 @@
 package test;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.validation.Validator;
 
 import org.junit.Assert;
@@ -44,4 +46,60 @@ public class AuctionEntityTest extends EntityTest{
 		Assert.assertEquals(1, v.validate(auction).size());
 		auction.setAskingPrice(0);
 	}	
+	
+	public void testLifeCycle(){
+		EntityManagerFactory  emf = super.getEntityManagerFactory();
+		EntityManager em = emf.createEntityManager();
+		
+		/*
+		 * Create auction seller 
+		 */
+		
+		em.getTransaction().begin();
+		
+		Person seller = new Person();
+		seller.setAlias("aliasSeller");
+		seller.getName().setGiven("Troy");
+		seller.getName().setFamily("Testa");
+		seller.getAddress().setCity("Hamburg");
+		seller.getAddress().setStreet("Testallee 13");
+		seller.getAddress().setPostalCode("12345");
+		seller.getContact().setEmail("testa@test.com");
+		seller.getContact().setPhone("012345678");
+				
+		em.persist(seller);
+		
+		try{
+			em.getTransaction().commit();
+		}
+		finally{
+			if (em.getTransaction().isActive()) {
+				em.getTransaction().rollback();
+			}	
+			this.getWasteBasket().add(seller.getIdentity());
+		}
+		
+		/*
+		 * Create auction. 
+		 */
+		
+		em.getTransaction().begin();
+		Auction auction = new Auction(seller);
+		auction.setTitle("super auction");
+		auction.setDescription("buy super great thing, cheap and fun");
+		auction.setAskingPrice(10);
+		em.persist(auction);
+		
+		try{
+			em.getTransaction().commit();
+		}
+		finally{
+			if (em.getTransaction().isActive()) {
+				em.getTransaction().rollback();
+			}
+			this.getWasteBasket().add(auction.getIdentity());
+		}
+		
+		em.close();
+	}
 }
