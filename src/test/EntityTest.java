@@ -16,7 +16,7 @@ import de.sb.java.TypeMetadata;
 import model.BaseEntity;
 
 
-/**
+/**w
  * JUnit base class for broker entity tests. It realizes once-per-all-tests entity manager factory
  * and validator factory creation, and once-per-any-test entity cleanup.
  */
