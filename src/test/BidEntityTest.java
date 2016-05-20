@@ -33,7 +33,7 @@ public class BidEntityTest extends EntityTest{
 		Assert.assertEquals(3, v.validate(bid).size()); // 1: cause of same IDs of bidder and seller
 														// 2: bid smaller than asking price
 														// 3: bid smaller than 0
-
+	}
 	@Test
 	public void testLifeCycle(){
 		EntityManagerFactory  emf = super.getEntityManagerFactory();
