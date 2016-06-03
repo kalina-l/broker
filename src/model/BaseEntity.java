@@ -10,6 +10,7 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.Table;
 import javax.validation.constraints.Min;
+import javax.xml.bind.annotation.*;
 
 /**
  * Abstract BaseEntity super class for all persitance entities. 
@@ -20,18 +21,24 @@ import javax.validation.constraints.Min;
 @Table(schema = "broker", name = "baseentity")
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "discriminator", discriminatorType = DiscriminatorType.STRING)
+@XmlAccessorType(XmlAccessType.NONE)
+@XmlType
+@XmlSeeAlso({Auction.class, Person.class, Bid.class})
 public abstract class BaseEntity implements Comparable<BaseEntity>{
 	
 	@Id
 	@GeneratedValue (strategy=GenerationType.IDENTITY)
 	@Min(0)
+	@XmlID
 	private long identity;
 	
 	@Column(name="version", nullable = false, updatable = false)
 	@Min(1)
+	@XmlElement
 	private int version;
 	
 	@Column(name="creationTimestamp", nullable = false, updatable = false)
+	@XmlElement
 	private long creationTimeStamp;
 	
 	

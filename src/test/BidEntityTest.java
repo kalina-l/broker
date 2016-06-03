@@ -1,11 +1,14 @@
 package test;
-import model.*;
-import org.junit.*;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.validation.Validator;
 
+import org.junit.Assert;
+import org.junit.Test;
 
-import java.util.Set;
-import javax.persistence.*;
-import javax.validation.*;
+import model.Auction;
+import model.Bid;
+import model.Person;
 
 public class BidEntityTest extends EntityTest{
 
@@ -139,7 +142,7 @@ public class BidEntityTest extends EntityTest{
 			}
 		}
 		Assert.assertEquals(20, bid.getPrice());
-		em.close();
+		 
 	}
 
 }

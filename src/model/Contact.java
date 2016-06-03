@@ -5,6 +5,7 @@ import javax.persistence.Embeddable;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlElement;
 
 /**
  * Contact of a Person
@@ -21,11 +22,13 @@ public class Contact {
 	             message="{invalid.email}") // https://docs.oracle.com/cd/E19798-01/821-1841/gkahq/index.html
 	@NotNull
 	@Size(min=1, max=63)
+	@XmlElement
 	private String email;
 	
 	@Column(name="phone", nullable = false, updatable = true, length = 63)
 	@NotNull
 	@Size(min=0, max=63)
+	@XmlElement
 	private String phone;
 	
 	

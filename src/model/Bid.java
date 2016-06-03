@@ -8,6 +8,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.validation.constraints.Min;
+import javax.xml.bind.annotation.XmlElement;
 
 import de.sb.java.validation.Inequal;
 
@@ -25,14 +26,17 @@ public class Bid extends BaseEntity{
 
 	@Column(name="price", nullable = false, updatable = true)
 	@Min(0)
+	@XmlElement
 	private long price;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "auctionReference", nullable = false, updatable = false)
+	@XmlElement
 	private Auction auction;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "bidderReference", nullable = false, updatable = false)
+	@XmlElement
 	private Person bidder;
 	
 	

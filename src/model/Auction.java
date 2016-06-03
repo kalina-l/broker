@@ -14,6 +14,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlElement;
 
 import de.sb.java.validation.Inequal;
 
@@ -33,29 +34,36 @@ public class Auction extends BaseEntity {
 	@Column(name = "title", nullable = false, updatable = true, length = 255)
 	@NotNull
 	@Size(min=1, max=255)
+	@XmlElement
 	private String title;
 	
 	@Column(name = "description", nullable = false, updatable = true, length = 8189)
 	@NotNull
 	@Size(min=1, max=8189)
+	@XmlElement
 	private String description;
 	
 	@Column(name = "unitCount", nullable = false, updatable = true)
+	@XmlElement
 	private short unitCount;
 	
 	@Column(name = "askingPrice", nullable = false, updatable = true)
 	@Min(0)
+	@XmlElement
 	private long askingPrice;
 	
 	@Column(name = "closureTimestamp", nullable = false, updatable = true)
+	@XmlElement
 	private long closureTimeStamp;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "sellerReference", nullable = false, updatable = false)
 	@NotNull
+	@XmlElement
 	private Person seller;
 	
 	@OneToMany(mappedBy = "auction")
+	@XmlElement
 	private Set<Bid> bids;
 	
 	
@@ -141,12 +149,13 @@ public class Auction extends BaseEntity {
 
 	}
 
+	@XmlElement
 	//virtual Properties
 	public boolean isSealed(){
 		return isClosed() | !bids.isEmpty() ? true : false;
 	}
 	
-	
+	@XmlElement
 	public boolean isClosed(){
 		return System.currentTimeMillis() > this.closureTimeStamp ? true : false;
 	}

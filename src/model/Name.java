@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlElement;
 
 /**
  * Name of a Person
@@ -16,11 +17,13 @@ public class Name {
 	@Column(name="familyName", nullable = false, updatable = true, length = 31)
 	@NotNull
 	@Size(min=1, max=31)
+	@XmlElement
 	private String family;
 	
 	@Column(name="givenName", nullable = false, updatable = true, length = 31)
 	@NotNull
 	@Size(min=1, max=31)
+	@XmlElement
 	private String given;
 	
 	

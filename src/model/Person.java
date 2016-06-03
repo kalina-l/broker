@@ -16,6 +16,7 @@ import javax.persistence.Table;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlElement;
 
 /**
  * Person who can bid on auctions
@@ -33,6 +34,7 @@ public class Person extends BaseEntity{
 	@Column(name = "alias", nullable = false, updatable = false, length = 16, unique = true)
 	@NotNull
 	@Size(min=1, max=16)
+	@XmlElement
 	private String alias;	
 	
 	@Column(name = "passwordHash", nullable = false, updatable = true, length = 32)
@@ -42,29 +44,35 @@ public class Person extends BaseEntity{
 	@Column(name = "groupAlias", nullable = false, updatable = true)
 	@Enumerated(EnumType.STRING)
 	@NotNull
+	@XmlElement
 	private Group group;
 	
 	@Embedded
 	@NotNull
 	@Valid
+	@XmlElement
 	private Name name;
 	
 	@Embedded
 	@NotNull
 	@Valid
+	@XmlElement
 	private Address address;
 	
 	@Embedded
 	@NotNull
 	@Valid
+	@XmlElement
 	private Contact contact;
 	
 	//Relationsfelder
 	
 	@OneToMany(mappedBy ="seller")
+	@XmlElement
 	private Set<Auction> auctions;	
 	
 	@OneToMany(mappedBy ="bidder")
+	@XmlElement
 	private Set<Bid> bids;
 	
 	
