@@ -17,7 +17,7 @@ public class AuctionService {
 	@GET
 	@Path("/people/{identity}")
 	@Produces({"application/xml", "application/json"})
-	public Person getPerson(@PathParam("identity") long identity){
+	public Person people(@PathParam("identity") long identity){
 		EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
 		Person person;
 		
