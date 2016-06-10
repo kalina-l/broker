@@ -14,3 +14,25 @@ public class AuctionService {
 	
 	
 }
+ENTITY_MANAGER_FACTORY = Persistence.createEntityManagerFactory("broker");;
+
+	@GET
+	@Path("/people/{identity}")
+	@Produces({"application/xml", "application/json"})
+	public Person people(@PathParam("identity") long identity){
+		EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
+		Person person;
+		
+		em.getTransaction().begin();
+		
+		try{
+			person = em.find(Person.class, identity);
+		}
+		finally{
+			if (em.getTransaction().isActive()) {
+				em.getTransaction().rollback();
+			}	
+		}
+		return person;
+	}
+}
