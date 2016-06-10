@@ -23,6 +23,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import com.sun.net.httpserver.HttpServer;
 
+import rest.EntityService;
+import rest.PersonService;
+
 
 /**
  * JUnit base class for broker service tests. It realizes once-per-all-tests embedded HTTP container
@@ -92,7 +95,7 @@ public class ServiceTest {
 	@BeforeClass
 	static public void startEmbeddedHttpContainer () {
 		final ResourceConfig configuration = new ResourceConfig()
-			.packages(ServiceTest.class.getPackage().toString())
+			.packages(ServiceTest.class.getPackage().toString(), "rest") // FIX - added rest package to known packages
 			.register(MoxyJsonFeature.class)	// edit "network.http.accept.default" in Firefox's "about:config"
 			.register(MoxyXmlFeature.class)		// to make "application/json" preferable to "application/xml"
 			.register(EntityFilteringFeature.class);
@@ -121,6 +124,7 @@ public class ServiceTest {
 	 * @throws IOException if there is an I/O related problem
 	 */
 	static public void main (final String[] args) throws IOException {
+		PersonService ps = new PersonService();
 		startEmbeddedHttpContainer();
 		try {
 			Logger.getGlobal().log(INFO, "Enter \"quit\" to stop.");

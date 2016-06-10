@@ -26,11 +26,11 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Master Programming Group 6
  *
  */
+//@NamedQuery(name="Person.findAll", query="SELECT p FROM Person p")
 @Entity
 @XmlRootElement
 @Table(schema = "broker", name = "person")
 @PrimaryKeyJoinColumn(name = "personIdentity")
-@NamedQuery(name="Person.findAll", query="SELECT p FROM Person p")
 public class Person extends BaseEntity{
 
 	
