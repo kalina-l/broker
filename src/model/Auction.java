@@ -15,6 +15,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import de.sb.java.validation.Inequal;
 
@@ -24,6 +25,7 @@ import de.sb.java.validation.Inequal;
  *
  */
 @Entity
+@XmlRootElement
 @Table(schema = "broker", name = "auction")
 @PrimaryKeyJoinColumn(name = "auctionIdentity")
 @Inequal(leftAccessPath = { "closureTimestamp" }, rightAccessPath = { "creationTimestamp" }, operator = Inequal.Operator.GREATER)
@@ -59,11 +61,9 @@ public class Auction extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "sellerReference", nullable = false, updatable = false)
 	@NotNull
-	@XmlElement
 	private Person seller;
 	
 	@OneToMany(mappedBy = "auction")
-	@XmlElement
 	private Set<Bid> bids;
 	
 	
@@ -149,8 +149,9 @@ public class Auction extends BaseEntity {
 
 	}
 
-	@XmlElement
 	//virtual Properties
+	
+	@XmlElement
 	public boolean isSealed(){
 		return isClosed() | !bids.isEmpty() ? true : false;
 	}

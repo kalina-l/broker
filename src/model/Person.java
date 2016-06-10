@@ -10,13 +10,16 @@ import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Person who can bid on auctions
@@ -24,8 +27,10 @@ import javax.xml.bind.annotation.XmlElement;
  *
  */
 @Entity
+@XmlRootElement
 @Table(schema = "broker", name = "person")
 @PrimaryKeyJoinColumn(name = "personIdentity")
+@NamedQuery(name="Person.findAll", query="SELECT p FROM Person p")
 public class Person extends BaseEntity{
 
 	
@@ -68,11 +73,9 @@ public class Person extends BaseEntity{
 	//Relationsfelder
 	
 	@OneToMany(mappedBy ="seller")
-	@XmlElement
 	private Set<Auction> auctions;	
 	
 	@OneToMany(mappedBy ="bidder")
-	@XmlElement
 	private Set<Bid> bids;
 	
 	

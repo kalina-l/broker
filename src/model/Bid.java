@@ -8,7 +8,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.validation.constraints.Min;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import de.sb.java.validation.Inequal;
 
@@ -18,6 +20,7 @@ import de.sb.java.validation.Inequal;
  *
  */
 @Entity
+@XmlRootElement
 @Table(schema = "broker", name = "bid")
 @PrimaryKeyJoinColumn(name = "bidIdentity")
 @Inequal(leftAccessPath = { "price" }, rightAccessPath = { "auction", "askingPrice" } , operator = Inequal.Operator.GREATER_EQUAL )
@@ -26,19 +29,16 @@ public class Bid extends BaseEntity{
 
 	@Column(name="price", nullable = false, updatable = true)
 	@Min(0)
-	@XmlElement
+	@XmlAttribute
 	private long price;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "auctionReference", nullable = false, updatable = false)
-	@XmlElement
 	private Auction auction;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "bidderReference", nullable = false, updatable = false)
-	@XmlElement
 	private Person bidder;
-	
 	
 	
 	public Bid(Auction auction, Person bidder){
