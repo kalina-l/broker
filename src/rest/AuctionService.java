@@ -113,10 +113,12 @@ public class AuctionService {
 
 			EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();	
 			
-			Person p = new Person();
-		   Auction auction = new Auction(p);	
-		   auction = a;
+
 		   em.getTransaction().begin();
+		   long tempID = 1;
+		   Person p = em.find(Person.class, tempID);
+			   Auction auction = new Auction(p);	
+			   auction = a;
 			em.persist(auction);
 				
 			try{ // Start Commit --------------------
