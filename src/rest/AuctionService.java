@@ -28,7 +28,7 @@ import jersey.repackaged.com.google.common.collect.Lists;
 import model.Auction;
 import model.Person;
 
-@Path("/auctions")
+@Path("/")
 public class AuctionService {
 
 	static private EntityManagerFactory ENTITY_MANAGER_FACTORY = Persistence.createEntityManagerFactory("broker");
@@ -38,7 +38,7 @@ public class AuctionService {
     private UriInfo uriInfo;
 	
 	@GET
-	@Path("/")
+	@Path("/auctions")
 	@Produces({"application/xml", "application/json"})
 	public Response getAuctions(){
 		EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
@@ -80,7 +80,7 @@ public class AuctionService {
 	
 	
 	@GET
-	@Path("/{identity}")
+	@Path("/auctions/{identity}")
 	@Produces({"application/xml", "application/json"})
 	public Response getAuctionByID(@PathParam("identity") long identity){
 		try{
@@ -103,68 +103,41 @@ public class AuctionService {
 			throw new ClientErrorException(CONFLICT);
 		}
 	}
-	
-	
-	  @PUT
-	   @Path("/")
-	   @Consumes({"application/xml", "application/json"})
-	   public Response createRandomAuction(){
-		   try{
-				EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();	
-				em.getTransaction().begin();
-				
-				long sellerID = 7;
-				Person seller =  em.find(Person.class, sellerID);
-				
-				Auction auction = new Auction(seller);
-				auction.setTitle("super auction number "+randomIdentifier());
-				auction.setDescription(randomIdentifier() + " buy super great thing, cheap and fun");
-				auction.setAskingPrice(10);
-				
-				em.persist(auction);
-					
-				try{ // Start Commit --------------------
-					em.getTransaction().commit();
-				}finally{
-					if (em.getTransaction().isActive()) {
-						em.getTransaction().rollback();
-					}	
-				} // End Commit -------------------------
 
-				//status code 201
-	            //sends back new URI in header key = 'LOCATION'
-				return Response.created(uriInfo.getAbsolutePath()).build();
-				
-			// TODO Errorhandling
-			}catch (final EntityNotFoundException exception) {
-				throw new ClientErrorException(NOT_FOUND);
-			} catch (final RollbackException exception) {
-				throw new ClientErrorException(CONFLICT);
-			} 
-		   
-	   }
 	
-	   /*
-	    * RANDOM NAME FUNCTION
-	    * - todo seperate
-	    */
+   @PUT
+   @Path("/auctions")
+   @Consumes({"application/xml", "application/json"})
+   public Response createAuction(Auction a){
+	  try{
+
+			EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();	
+			
+			Person p = new Person();
+		   Auction auction = new Auction(p);	
+		   auction = a;
+		   em.getTransaction().begin();
+			em.persist(auction);
+				
+			try{ // Start Commit --------------------
+				em.getTransaction().commit();
+			}finally{
+				if (em.getTransaction().isActive()) {
+					em.getTransaction().rollback();
+				}	
+			} // End Commit -------------------------
+
+			//status code 201
+            //sends back new URI in header key = 'LOCATION'
+			return Response.created(uriInfo.getAbsolutePath()).build();
+			
+		// TODO Errorhandling
+		}catch (final EntityNotFoundException exception) {
+			throw new ClientErrorException(NOT_FOUND);
+		} catch (final RollbackException exception) {
+			throw new ClientErrorException(CONFLICT);
+		} 
 	   
-	//class variable
-	final String lexicon = "abcdefghijklmnopqrstuvwxyz12345674890";
-	final java.util.Random rand = new java.util.Random();
-	//consider using a Map<String,Boolean> to say whether the identifier is being used or not 
-	final Set<String> identifiers = new HashSet<String>();
+   }
 
-	public String randomIdentifier() {
-	 StringBuilder builder = new StringBuilder();
-	 while(builder.toString().length() == 0) {
-	     int length = rand.nextInt(5)+5;
-	     for(int i = 0; i < length; i++)
-	         builder.append(lexicon.charAt(rand.nextInt(lexicon.length())));
-	     if(identifiers.contains(builder.toString()))
-	         builder = new StringBuilder();
-	 }
-	 return builder.toString();
-	}
-	
 }

@@ -30,7 +30,7 @@ import model.Auction;
 import model.Bid;
 import model.Person;
 
-@Path("/people")
+@Path("/")
 public class PersonService{
 	
 	static private EntityManagerFactory ENTITY_MANAGER_FACTORY = Persistence.createEntityManagerFactory("broker");
@@ -40,7 +40,7 @@ public class PersonService{
     private UriInfo uriInfo;
 	
 	@GET
-	@Path("/")
+	@Path("/people")
 	@Produces({"application/xml", "application/json"})
 	public Response getPersons(){
 		EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
@@ -82,7 +82,7 @@ public class PersonService{
 	
 	
 	@GET
-	@Path("/{identity}")
+	@Path("/people/{identity}")
 	@Produces({"application/xml", "application/json"})
 	public Response getPersonByID(@PathParam("identity") long identity){
 		try{
@@ -109,7 +109,7 @@ public class PersonService{
 	
 	
 	@GET
-	@Path("/{identity}/auctions")
+	@Path("/people/{identity}/auctions")
 	@Produces({"application/xml", "application/json"})
 	public Response getAuctionsByPersonID(@PathParam("identity") long identity){
 		
@@ -150,7 +150,7 @@ public class PersonService{
 	
 	
 	@GET
-	@Path("/{identity}/bids")
+	@Path("/people/{identity}/bids")
 	@Produces({"application/xml", "application/json"})
 	public Response getClosedBidsByPersonID(@PathParam("identity") long identity){
 		
@@ -187,7 +187,7 @@ public class PersonService{
 	}
 	
    @PUT
-   @Path("/")
+   @Path("/people")
    @Consumes({"application/xml", "application/json"})
    public Response createPerson(Person p){
 	   try{
@@ -218,30 +218,6 @@ public class PersonService{
 		} 
 	   
    }
-	   
-   
-   /*
-    * RANDOM NAME FUNCTION
-    * - todo seperate
-    */
-   
-//class variable
-final String lexicon = "abcdefghijklmnopqrstuvwxyz12345674890";
-final java.util.Random rand = new java.util.Random();
-//consider using a Map<String,Boolean> to say whether the identifier is being used or not 
-final Set<String> identifiers = new HashSet<String>();
-
-public String randomIdentifier() {
- StringBuilder builder = new StringBuilder();
- while(builder.toString().length() == 0) {
-     int length = rand.nextInt(5)+5;
-     for(int i = 0; i < length; i++)
-         builder.append(lexicon.charAt(rand.nextInt(lexicon.length())));
-     if(identifiers.contains(builder.toString()))
-         builder = new StringBuilder();
- }
- return builder.toString();
-}
 
 
 }
