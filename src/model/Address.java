@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 
 /**
  * Address of a Person
- * @author Master Programming Group 6
+ * @author Hady Khalifa
  *
  */
 @Embeddable

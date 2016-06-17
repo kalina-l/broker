@@ -22,9 +22,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-import model.Person;
 import de.sb.java.TypeMetadata;
 import de.sb.java.net.HttpAuthenticationCodec;
+import model.Person;
 
 
 /**

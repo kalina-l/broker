@@ -111,6 +111,9 @@ public class Person extends BaseEntity{
 		this.bids = new HashSet<Bid>();
 			
 	}
+	
+	
+	
 
 	public void setAlias(String alias){
 		this.alias = alias;

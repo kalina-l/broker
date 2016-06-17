@@ -83,12 +83,13 @@ public class AuthenticationDemoService {
 		final String userAlias = credentials.get("username");
 		final String userPassword = credentials.get("password");
 		if (!userAlias.equals(userPassword)) {
+			// TODO - Passwordlookup
 			// simulate failed user lookup
 			return Response.status(Status.UNAUTHORIZED).header("WWW-Authenticate", "Basic").build();
 		}
 
 		// Perform authorization checks
-		if ("sascha".equals(userAlias)) {
+		if ("daired".equals(userAlias)) {
 			return Response.status(Status.OK).entity(String.format(AUTHENTICATED_AND_AUTORIZED, userAlias)).build();
 		}
 		return Response.status(Status.FORBIDDEN).entity(String.format(AUTHENTICATED_BUT_NOT_AUTORIZED, userAlias)).build();

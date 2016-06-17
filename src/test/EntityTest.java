@@ -61,6 +61,7 @@ public abstract class EntityTest {
 	 */
 	@BeforeClass
 	static public void createClassResources () {
+
 		ENTITY_MANAGER_FACTORY = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
 	}
 

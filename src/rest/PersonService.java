@@ -1,9 +1,7 @@
 package rest;
 
 import static javax.ws.rs.core.Response.Status.CONFLICT;
-import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-import static model.Group.ADMIN;
 
 import java.util.HashSet;
 import java.util.List;
@@ -18,14 +16,14 @@ import javax.persistence.TypedQuery;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import jersey.repackaged.com.google.common.collect.Lists;
 import model.Auction;
@@ -37,6 +35,10 @@ public class PersonService{
 	
 	static private EntityManagerFactory ENTITY_MANAGER_FACTORY = Persistence.createEntityManagerFactory("broker");
 
+	// See - http://www.logicbig.com/tutorials/java-ee-tutorial/jax-rs/put-example/
+	@Context
+    private UriInfo uriInfo;
+	
 	@GET
 	@Path("/")
 	@Produces({"application/xml", "application/json"})
@@ -120,12 +122,11 @@ public class PersonService{
 			Set<Bid> bids = person.getBids();
 			// Get auctions with bidder reference
 			for(Bid b : bids){
-				//Notwendig?
+				// TODO - Notwendig?
 				if (b.getBidder() != null && b.getAuction() != null && b.getBidder().getIdentity() == person.getIdentity())
 					auctions.add(b.getAuction());
 			}
-			
-			
+						
 			try{ // Start Commit --------------------
 				em.getTransaction().commit();
 			}finally{
@@ -184,95 +185,48 @@ public class PersonService{
 			throw new ClientErrorException(CONFLICT);
 		} 
 	}
-			
-			
-			
-			
-	
 	
    @PUT
    @Path("/")
-   @Produces({"application/xml", "application/json"})
-   @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-   public void createPerson(@HeaderParam("Authorization") final String authentication){
-	   EntityManager em = LifeCycleProvider.brokerManager();
-		Person requester = LifeCycleProvider.authenticate(authentication);
-		if (requester.getGroup() != ADMIN) throw new ClientErrorException(FORBIDDEN);
-			
-		Person person;
-			   try{
-			em.getTransaction().begin();	
-			person =  new Person();
-			
-			person.setAlias(randomIdentifier());
-			person.getName().setGiven(randomIdentifier());
-			person.getName().setFamily(randomIdentifier());
-			person.getAddress().setCity("Berlin-"+randomIdentifier());
-			person.getAddress().setStreet("Testallee 13");
-			person.getAddress().setPostalCode("12345");
-			person.getContact().setEmail(randomIdentifier()+"@test.com");
-			person.getContact().setPhone("012345678");
-
+   @Consumes({"application/xml", "application/json"})
+   public Response createPerson(Person p){
+	   try{
+		   Person person = new Person();
+		   person = p;
+			EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();	
+			em.getTransaction().begin();		
 			em.persist(person);
-				
-			try {
+			//em.merge(person);
+			try{ // Start Commit --------------------
 				em.getTransaction().commit();
-			} finally {
-				em.getTransaction().begin();
-			}
-	
-			em.close();
+			}finally{
+				if (em.getTransaction().isActive()) {
+					em.getTransaction().rollback();
+				}	
+			} // End Commit -------------------------
+
+			//status code 201
+            //sends back new URI in header key = 'LOCATION'
+			return Response.created(uriInfo.getAbsolutePath()).build();
+			
+		// TODO Errorhandling
 		}catch (final EntityNotFoundException exception) {
 			throw new ClientErrorException(NOT_FOUND);
 		} catch (final RollbackException exception) {
+			// Duplicate entry mail or alias
 			throw new ClientErrorException(CONFLICT);
-		}
-	}
+		} 
 	   
-	  
-    
-	
-//	@PUT
-//	@Path("/people")
-//	@Produces({"application/xml", "application/json"})
-//	public void putPerson() {
-//		EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
-//		Person person;
-//		 	
-//		em.getTransaction().begin();
-//		
-//		person =  new Person();
-//		person.setAlias("aliasTest");
-//		person.getName().setGiven("Troy");
-//		person.getName().setFamily("Testa");
-//		person.getAddress().setCity("Hamburg");
-//		person.getAddress().setStreet("Testallee 13");
-//		person.getAddress().setPostalCode("12345");
-//		person.getContact().setEmail("testa@test.com");
-//		person.getContact().setPhone("012345678");
-//		
-//		em.persist(person);
-//
-//		try{
-//			em.getTransaction().commit();
-//		}
-//		finally{
-//			if (em.getTransaction().isActive()) {
-//				em.getTransaction().rollback();
-//			}
-//			
-//		}
-//	 
-//	
-//	}
-
+   }
+	   
+   
    /*
     * RANDOM NAME FUNCTION
     * - todo seperate
     */
    
 //class variable
-final String lexicon = "ABCDEFGHIJKLMNOPQRSTUVWXYZ12345674890";
+final String lexicon = "abcdefghijklmnopqrstuvwxyz12345674890";
 final java.util.Random rand = new java.util.Random();
 //consider using a Map<String,Boolean> to say whether the identifier is being used or not 
 final Set<String> identifiers = new HashSet<String>();
