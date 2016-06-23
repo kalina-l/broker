@@ -3,6 +3,7 @@ package rest;
 import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,10 +21,8 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 import jersey.repackaged.com.google.common.collect.Lists;
 import model.Auction;
@@ -36,39 +35,47 @@ public class PersonService{
 	static private EntityManagerFactory ENTITY_MANAGER_FACTORY = Persistence.createEntityManagerFactory("broker");
 
 	// See - http://www.logicbig.com/tutorials/java-ee-tutorial/jax-rs/put-example/
-	@Context
-    private UriInfo uriInfo;
+
 	
+	// object zurück geben wenn code 200
+	// response wenn zb jpg oder png, oder relationen
 	@GET
 	@Path("/people")
 	@Produces({"application/xml", "application/json"})
 	public Response getPersons(){
 		EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
-		TypedQuery<Person> query;			
+		TypedQuery<Long> query;		
 		em.getTransaction().begin();
 		try{
 			try{
 				//Limit Paramter
 				int lowerNumber = 1;
 				int upperNumber = 100;
-				String queryAttr = "identity";
-				//Query limited range
-				//TODO - Named Queries Annotation in model?
-				query  = em.createQuery("SELECT p FROM Person p WHERE "
-						+ "(" + lowerNumber + " is null or p." + queryAttr + " >= " + lowerNumber + ") and"
-						+ "(" + upperNumber + " is null or p." + queryAttr + " <= " + upperNumber + ")", 
-						Person.class);
+				// nur id zurückgeben
+				query = em.createQuery("SELECT p.identity FROM Person p WHERE "
+						+ "(:lowerNumber is null or p.identity >= :lowerNumber) and"
+						+ "(:upperNumber is null or p.identity <= :upperNumber)", 
+						Long.class)
+						.setParameter("lowerNumber", lowerNumber)
+						.setParameter("upperNumber", upperNumber);			
 			}
 			finally{
+				// Notweding bei GET ???
 				if (em.getTransaction().isActive()) {
 						em.getTransaction().rollback();
 				}	
 			}			
 			
-			//See - http://stackoverflow.com/questions/6081546/jersey-can-produce-listt-but-cannot-response-oklistt-build
-			List<Person> list = query.getResultList();
+			List<Long> idList = query.getResultList();
+			List<Person> personList = new ArrayList<>();
+			for (Long id:  idList){
+				Person temp = em.find(Person.class, id);
+				if (temp != null)
+						personList.add(temp);
+			}
+			
 			GenericEntity<List<Person>> entity = 
-		            new GenericEntity<List<Person>>(Lists.newArrayList(list)) {};
+		            new GenericEntity<List<Person>>(Lists.newArrayList(personList)) {};
 		        return Response.ok(entity).build();
 			
 		// TODO Errorhandling
@@ -84,7 +91,7 @@ public class PersonService{
 	@GET
 	@Path("/people/{identity}")
 	@Produces({"application/xml", "application/json"})
-	public Response getPersonByID(@PathParam("identity") long identity){
+	public Person getPersonByID(@PathParam("identity") long identity){
 		try{
 			EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
 			Person person;
@@ -97,7 +104,7 @@ public class PersonService{
 						em.getTransaction().rollback();
 					}	
 			}
-			return Response.ok(person).build();
+			return person;
 		
 		}catch (final EntityNotFoundException exception) {
 			throw new ClientErrorException(NOT_FOUND);
@@ -122,9 +129,7 @@ public class PersonService{
 			Set<Bid> bids = person.getBids();
 			// Get auctions with bidder reference
 			for(Bid b : bids){
-				// TODO - Notwendig?
-				if (b.getBidder() != null && b.getAuction() != null && b.getBidder().getIdentity() == person.getIdentity())
-					auctions.add(b.getAuction());
+				auctions.add(b.getAuction());
 			}
 						
 			try{ // Start Commit --------------------
@@ -189,14 +194,30 @@ public class PersonService{
    @PUT
    @Path("/people")
    @Consumes({"application/xml", "application/json"})
-   public Response createPerson(Person p){
+   public Response alterPerson(Person template){
 	   try{
-		   Person person = new Person();
-		   person = p;
+		   
 			EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();	
+			
+			 boolean createmode = template.getIdentity() == 0;
 			em.getTransaction().begin();		
-			em.persist(person);
-			//em.merge(person);
+			Person person =  createmode ? new Person() : em.find(Person.class, template.getIdentity());
+			
+			person.setAlias(template.getAlias());
+			person.setGroup(template.getGroup());
+			person.getName().setFamily(template.getName().getFamily());
+			person.getName().setGiven(template.getName().getGiven());
+			person.getAddress().setStreet(template.getAddress().getStreet());
+			person.getAddress().setPostalCode(template.getAddress().getPostalCode());
+			person.getAddress().setCity(template.getAddress().getCity());
+			person.getContact().setEmail(template.getContact().getEmail());
+			person.getContact().setPhone(template.getContact().getPhone());
+			
+			if (createmode)
+				em.persist(person);
+			else 
+				em.flush();
+
 			try{ // Start Commit --------------------
 				em.getTransaction().commit();
 			}finally{
@@ -205,9 +226,8 @@ public class PersonService{
 				}	
 			} // End Commit -------------------------
 
-			//status code 201
-            //sends back new URI in header key = 'LOCATION'
-			return Response.created(uriInfo.getAbsolutePath()).build();
+
+			return Response.ok(person.getIdentity()).build();
 			
 		// TODO Errorhandling
 		}catch (final EntityNotFoundException exception) {
