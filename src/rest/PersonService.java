@@ -21,6 +21,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 
@@ -34,30 +35,51 @@ public class PersonService{
 	
 	static private EntityManagerFactory ENTITY_MANAGER_FACTORY = Persistence.createEntityManagerFactory("broker");
 
-	// See - http://www.logicbig.com/tutorials/java-ee-tutorial/jax-rs/put-example/
-
 	
 	// object zurück geben wenn code 200
 	// response wenn zb jpg oder png, oder relationen
 	@GET
 	@Path("/people")
 	@Produces({"application/xml", "application/json"})
-	public Response getPersons(){
+	public Response getPersons( 
+			@QueryParam("creationTimeLowerLimit") Long creationTimeLowerLimit,
+			@QueryParam("creationTimeUpperLimit") Long creationTimeUpperLimit,
+			@QueryParam("alias") String alias,
+			@QueryParam("givenName") String givenName,
+			@QueryParam("familyName") String familyName,
+			@QueryParam("street") String street,
+			@QueryParam("postalCode") String postalCode,
+			@QueryParam("city") String city,
+			@QueryParam("phone") String phone,
+			@QueryParam("email") String email){
+		
 		EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
 		TypedQuery<Long> query;		
 		em.getTransaction().begin();
 		try{
 			try{
-				//Limit Paramter
-				int lowerNumber = 1;
-				int upperNumber = 100;
-				// nur id zurückgeben
 				query = em.createQuery("SELECT p.identity FROM Person p WHERE "
-						+ "(:lowerNumber is null or p.identity >= :lowerNumber) and"
-						+ "(:upperNumber is null or p.identity <= :upperNumber)", 
+						+ "(:creationTimeLowerLimit is null or p.creationTimeStamp >= :creationTimeLowerLimit) and"
+						+ "(:creationTimeUpperLimit is null or p.creationTimeStamp <= :creationTimeUpperLimit) and"
+						+ "(:alias is null or p.alias = :alias) and"
+						+ "(:givenName is null or p.name.given = :givenName) and"
+						+ "(:familyName is null or p.name.family = :familyName) and"
+						+ "(:street is null or p.address.street = :street) and"
+						+ "(:postalCode is null or p.address.postalCode = :postalCode) and"
+						+ "(:city is null or p.address.city = :city) and"
+						+ "(:phone is null or p.contact.phone = :phone) and"
+						+ "(:email is null or p.contact.email = :email)", 
 						Long.class)
-						.setParameter("lowerNumber", lowerNumber)
-						.setParameter("upperNumber", upperNumber);			
+						.setParameter("creationTimeLowerLimit", creationTimeLowerLimit)
+						.setParameter("creationTimeUpperLimit", creationTimeUpperLimit)
+						.setParameter("alias", alias)
+						.setParameter("givenName", givenName)
+						.setParameter("familyName", familyName)
+						.setParameter("street", street)
+						.setParameter("postalCode", postalCode)
+						.setParameter("city", city)
+						.setParameter("phone", phone)
+						.setParameter("email", email);			
 			}
 			finally{
 				// Notweding bei GET ???
@@ -97,13 +119,15 @@ public class PersonService{
 			Person person;
 			em.getTransaction().begin();			
 			person = em.find(Person.class, identity);
-			try{
-					em.getTransaction().commit();
-			}finally{
-					if (em.getTransaction().isActive()) {
-						em.getTransaction().rollback();
-					}	
-			}
+			
+//			try{
+//					em.getTransaction().commit();
+//			}finally{
+//					if (em.getTransaction().isActive()) {
+//						em.getTransaction().rollback();
+//					}	
+//			}
+			
 			return person;
 		
 		}catch (final EntityNotFoundException exception) {
@@ -124,7 +148,7 @@ public class PersonService{
 			EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();	
 			em.getTransaction().begin();
 			
-			Person person = em.find(Person.class, identity);
+			final Person person = em.find(Person.class, identity);
 			Set<Auction> auctions = person.getAuctions();
 			Set<Bid> bids = person.getBids();
 			// Get auctions with bidder reference
@@ -132,13 +156,13 @@ public class PersonService{
 				auctions.add(b.getAuction());
 			}
 						
-			try{ // Start Commit --------------------
-				em.getTransaction().commit();
-			}finally{
-				if (em.getTransaction().isActive()) {
-					em.getTransaction().rollback();
-				}	
-			} // End Commit -------------------------
+//			try{ // Start Commit --------------------
+//				em.getTransaction().commit();
+//			}finally{
+//				if (em.getTransaction().isActive()) {
+//					em.getTransaction().rollback();
+//				}	
+//			} // End Commit -------------------------
 
 			GenericEntity<List<Auction>> entity = 
 		            new GenericEntity<List<Auction>>(Lists.newArrayList(auctions)) {};
@@ -171,13 +195,13 @@ public class PersonService{
 					closedBids.add(b);
 			}
 				
-			try{ // Start Commit --------------------
-				em.getTransaction().commit();
-			}finally{
-				if (em.getTransaction().isActive()) {
-					em.getTransaction().rollback();
-				}	
-			} // End Commit -------------------------
+//			try{ // Start Commit --------------------
+//				em.getTransaction().commit();
+//			}finally{
+//				if (em.getTransaction().isActive()) {
+//					em.getTransaction().rollback();
+//				}	
+//			} // End Commit -------------------------
 
 			GenericEntity<List<Bid>> entity = 
 		            new GenericEntity<List<Bid>>(Lists.newArrayList(closedBids)) {};
@@ -199,7 +223,7 @@ public class PersonService{
 		   
 			EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();	
 			
-			 boolean createmode = template.getIdentity() == 0;
+			boolean createmode = template.getIdentity() == 0;
 			em.getTransaction().begin();		
 			Person person =  createmode ? new Person() : em.find(Person.class, template.getIdentity());
 			

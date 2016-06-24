@@ -18,6 +18,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 
@@ -33,32 +34,47 @@ public class AuctionService {
 	@GET
 	@Path("/auctions")
 	@Produces({"application/xml", "application/json"})
-	public Response getAuctions(){
+	public Response getAuctions(
+			@QueryParam("creationTimeLowerLimit") Long creationTimeLowerLimit,
+			@QueryParam("creationTimeUpperLimit") Long creationTimeUpperLimit,
+			@QueryParam("closureTimeLowerLimit") Long closureTimeLowerLimit,
+			@QueryParam("closureTimeUpperLimit") Long closureTimeUpperLimit,
+			@QueryParam("title") String title,
+			@QueryParam("description") String description,
+			@QueryParam("unitCount") Long unitCount,
+			@QueryParam("askingPrice") Long askingPrice){
+		
 		EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
 		TypedQuery<Long> query;			
 		em.getTransaction().begin();
 		try{
 			try{
-				//Limit Paramter
-				int lowerLimit = 1;
-				int upperLimit = 100;
-				
-				//Query limited range
-				//TODO - Named Queries Annotation in model?
 				query = em.createQuery("SELECT x.identity FROM Auction x WHERE "
-							+ "(:lowerNumber is null or x.identity >= :lowerNumber) and"
-							+ "(:upperNumber is null or x.identity <= :upperNumber)", 
+							+ "(:creationTimeLowerLimit is null or x.creationTimeStamp >= :creationTimeLowerLimit) and"
+							+ "(:creationTimeUpperLimit is null or x.creationTimeStamp <= :creationTimeUpperLimit) and"
+							+ "(:title is null or x.title = :title) and"
+							+ "(:description is null or x.description = :description) and"
+							+ "(:unitCount is null or x.unitCount = :unitCount) and"
+							+ "(:askingPrice is null or x.askingPrice = :askingPrice) and"
+							+ "(:closureTimeLowerLimit is null or x.closureTimeStamp >= :closureTimeLowerLimit) and"
+							+ "(:closureTimeUpperLimit is null or x.closureTimeStamp <= :closureTimeUpperLimit)",
 							Long.class)
-							.setParameter("lowerNumber", lowerLimit)
-							.setParameter("upperNumber", upperLimit);		
+							.setParameter("creationTimeLowerLimit", creationTimeLowerLimit)
+							.setParameter("creationTimeUpperLimit", creationTimeUpperLimit)
+							.setParameter("title", title)
+							.setParameter("description", description)
+							.setParameter("unitCount", unitCount)
+							.setParameter("askingPrice", askingPrice)
+							.setParameter("closureTimeLowerLimit", closureTimeLowerLimit)
+							.setParameter("closureTimeUpperLimit", closureTimeUpperLimit);		
 			}
 			finally{
 				if (em.getTransaction().isActive()) {
 						em.getTransaction().rollback();
 				}	
 			}				
-			List<Long> idList = query.getResultList();
 			
+			List<Long> idList = query.getResultList();
 			List<Auction> auctionList = new ArrayList<>();
 			for (Long id:  idList){
 				Auction temp = em.find(Auction.class, id);
@@ -89,13 +105,13 @@ public class AuctionService {
 			Auction auction;
 			em.getTransaction().begin();			
 			auction = em.find(Auction.class, identity);
-			try{
-					em.getTransaction().commit();
-			}finally{
-					if (em.getTransaction().isActive()) {
-						em.getTransaction().rollback();
-					}	
-				}
+//			try{
+//					em.getTransaction().commit();
+//			}finally{
+//					if (em.getTransaction().isActive()) {
+//						em.getTransaction().rollback();
+//					}	
+//				}
 			return auction;
 		
 		}catch (final EntityNotFoundException exception) {
