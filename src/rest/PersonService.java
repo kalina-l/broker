@@ -149,11 +149,13 @@ public class PersonService{
 			em.getTransaction().begin();
 			
 			final Person person = em.find(Person.class, identity);
-			Set<Auction> auctions = person.getAuctions();
+			Set<Auction> allAuctions = new HashSet<Auction>();
+			allAuctions.addAll(person.getAuctions());
+			
 			Set<Bid> bids = person.getBids();
 			// Get auctions with bidder reference
 			for(Bid b : bids){
-				auctions.add(b.getAuction());
+				allAuctions.add(b.getAuction());
 			}
 						
 //			try{ // Start Commit --------------------
@@ -165,7 +167,7 @@ public class PersonService{
 //			} // End Commit -------------------------
 
 			GenericEntity<List<Auction>> entity = 
-		            new GenericEntity<List<Auction>>(Lists.newArrayList(auctions)) {};
+		            new GenericEntity<List<Auction>>(Lists.newArrayList(allAuctions)) {};
 		        return Response.ok(entity).build();
 			
 		// TODO Errorhandling

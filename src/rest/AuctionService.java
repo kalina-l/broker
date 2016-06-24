@@ -125,17 +125,18 @@ public class AuctionService {
    @PUT
    @Path("/auctions")
    @Consumes({"application/xml", "application/json"})
-   public Response alterAuction(Auction template){
+   public Response alterAuction(Auction template,
+		   @QueryParam("sellerID") Long sellerID){
 	  try{
-
+		  
 		   EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();	
 			
 		   boolean createmode = template.getIdentity() == 0;
 		   
 		   em.getTransaction().begin();
 		    //woher bekommen wir die seller ID?
-		    long tempID = 1;
-		    Person p = em.find(Person.class, tempID);
+		    long id = (sellerID != null) ? sellerID : 1;
+		    Person p = em.find(Person.class, id);
 		    
 			Auction auction = createmode ? new Auction(p) : em.find(Auction.class, template.getIdentity());	
 			
