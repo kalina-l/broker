@@ -18,6 +18,7 @@ import javax.xml.bind.annotation.*;
  *
  */
 @Entity
+@XmlRootElement
 @Table(schema = "broker", name = "baseentity")
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "discriminator", discriminatorType = DiscriminatorType.STRING)

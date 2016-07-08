@@ -25,7 +25,7 @@ import de.sb.java.validation.Inequal;
  *
  */
 @Entity
-@XmlRootElement
+// @XmlRootElement
 @Table(schema = "broker", name = "auction")
 @PrimaryKeyJoinColumn(name = "auctionIdentity")
 @Inequal(leftAccessPath = { "closureTimestamp" }, rightAccessPath = { "creationTimestamp" }, operator = Inequal.Operator.GREATER)
