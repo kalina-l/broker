@@ -15,6 +15,7 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.Persistence;
 import javax.persistence.RollbackException;
 import javax.persistence.TypedQuery;
+import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 import javax.ws.rs.ClientErrorException;
@@ -91,7 +92,7 @@ public class PersonService {
 
 			
 		} catch (final EntityNotFoundException exception) {
-			throw new ClientErrorException(NOT_FOUND);
+			throw new ClientErrorException(404);
 		}
 	}
 
@@ -104,21 +105,15 @@ public class PersonService {
 			Person person = null;
 			person = em.find(Person.class, identity);
 
-			// try{
-			// em.getTransaction().commit();
-			// }finally{
-			// if (em.getTransaction().isActive()) {
-			// em.getTransaction().rollback();
-			// }
-			// }
-			
 			if(person == null){
 				throw new EntityNotFoundException();
 			}
 			return person;
 
-		} catch (final EntityNotFoundException exception) {
-			throw new ClientErrorException(NOT_FOUND);
+		} catch (Exception exception) {
+			if(exception instanceof EntityNotFoundException) throw new ClientErrorException(404);
+			if(exception instanceof IllegalArgumentException) throw new ClientErrorException(400);
+			throw new InternalServerErrorException();
 		}
 	}
 
@@ -149,8 +144,10 @@ public class PersonService {
 			return Response.ok(entity).build();
 
 			
-		} catch (final EntityNotFoundException exception) {
-			throw new ClientErrorException(NOT_FOUND);
+		} catch (Exception exception) {
+			if(exception instanceof EntityNotFoundException) throw new ClientErrorException(404);
+			if(exception instanceof IllegalArgumentException) throw new ClientErrorException(400);
+			throw new InternalServerErrorException();
 		}
 	}
 
@@ -178,8 +175,10 @@ public class PersonService {
 			};
 			return Response.ok(entity).build();
 
-		} catch (final EntityNotFoundException exception) {
-			throw new ClientErrorException(NOT_FOUND);
+		} catch (Exception exception) {
+			if(exception instanceof EntityNotFoundException) throw new ClientErrorException(404);
+			if(exception instanceof IllegalArgumentException) throw new ClientErrorException(400);
+			throw new InternalServerErrorException();
 		}
 	}
 
@@ -211,18 +210,16 @@ public class PersonService {
 
 			try { // Start Commit --------------------
 				em.getTransaction().commit();
-				em.getTransaction().begin();
 			} finally {
-				if (em.getTransaction().isActive()) {
-					em.getTransaction().rollback();
-				}
+				em.getTransaction().begin();
 			} // End Commit -------------------------
 
 			return Response.ok(person.getIdentity()).build();
 
-			// TODO Errorhandling
 		} catch (Exception exception) {
-			if(exception instanceof EntityExistsException) throw new ClientErrorException(400);
+			if(exception instanceof EntityNotFoundException) throw new ClientErrorException(404);
+			if(exception instanceof ConstraintViolationException) throw new ClientErrorException(400);
+			if(exception instanceof RollbackException) throw new ClientErrorException(409);
 			if(exception instanceof IllegalArgumentException) throw new ClientErrorException(400);
 			throw new InternalServerErrorException();
 		}
