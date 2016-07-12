@@ -124,30 +124,6 @@ public class AuctionService {
 		}
 	}
 
-<<<<<<< HEAD
-	
-   @PUT
-   @Path("/auctions")
-   @Consumes({"application/xml", "application/json"})
-   public Response alterAuction(Auction template,
-		   @QueryParam("sellerID") Long sellerID){
-	  try{
-		  
-		   EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();	
-			
-		   boolean createmode = template.getIdentity() == 0;
-		   
-		   em.getTransaction().begin();
-
-		    Auction auction;	    
-		    if (createmode){
-		    	if(sellerID == null) throw new NullPointerException();
-		    	Person p = em.find(Person.class, sellerID);
-		    	auction = new Auction(p);
-		    }else{
-		    	auction = em.find(Auction.class, template.getIdentity());
-		    }
-=======
 	@PUT
 	@Path("/auctions")
 	@Consumes({ "application/xml", "application/json" })
@@ -164,7 +140,7 @@ public class AuctionService {
 			if(p == null) throw new EntityNotFoundException("Seller not found!");
 
 			Auction auction = createmode ? new Auction(p) : em.find(Auction.class, template.getIdentity());
->>>>>>> 9289feb93b0a733e0990c9c38c82ab67a2943f19
+
 
 			auction.setTitle(template.getTitle());
 			auction.setDescription(template.getDescription());
