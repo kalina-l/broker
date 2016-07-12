@@ -1,4 +1,5 @@
 package rest;
+
 import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
@@ -11,9 +12,13 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.Persistence;
 import javax.persistence.RollbackException;
 import javax.persistence.TypedQuery;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Valid;
+import javax.validation.constraints.*;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -76,54 +81,50 @@ public class AuctionService {
 						em.getTransaction().rollback();
 				}	
 			}				
-			
+
+
+
 			List<Long> idList = query.getResultList();
 			List<Auction> auctionList = new ArrayList<>();
-			for (Long id:  idList){
+			for (Long id : idList) {
 				Auction temp = em.find(Auction.class, id);
 				if (temp != null)
 					auctionList.add(temp);
 			}
+
+			if(idList.isEmpty()){
+				throw new EntityNotFoundException();
+			}
 			
-			GenericEntity<List<Auction>> entity = 
-		            new GenericEntity<List<Auction>>(Lists.newArrayList(auctionList)) {};
-		        return Response.ok(entity).build();
-			
-		        
-		// TODO Errorhandling
-		}catch (final EntityNotFoundException exception) {
-			throw new ClientErrorException(NOT_FOUND);
-		} catch (final RollbackException exception) {
-			throw new ClientErrorException(CONFLICT);
-		} 
-	}
-	
-	
-	@GET
-	@Path("/auctions/{identity}")
-	@Produces({"application/xml", "application/json"})
-	public Auction getAuctionByID(@PathParam("identity") long identity){
-		try{
-			EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
-			Auction auction;
-			em.getTransaction().begin();			
-			auction = em.find(Auction.class, identity);
-//			try{
-//					em.getTransaction().commit();
-//			}finally{
-//					if (em.getTransaction().isActive()) {
-//						em.getTransaction().rollback();
-//					}	
-//				}
-			return auction;
-		
-		}catch (final EntityNotFoundException exception) {
-			throw new ClientErrorException(NOT_FOUND);
-		} catch (final RollbackException exception) {
-			throw new ClientErrorException(CONFLICT);
+			GenericEntity<List<Auction>> entity = new GenericEntity<List<Auction>>(Lists.newArrayList(auctionList)) {
+			};
+			return Response.ok(entity).build();
+
+		} catch (Exception exception) {
+			if(exception instanceof EntityNotFoundException) throw new ClientErrorException(NOT_FOUND);
+			throw new InternalServerErrorException();
 		}
 	}
 
+	@GET
+	@Path("/auctions/{identity}")
+	@Produces({ "application/xml", "application/json" })
+	public Auction getAuctionByID(@NotNull @Min(1) @PathParam("identity") long identity) {
+		try {
+			EntityManager em = LifeCycleProvider.brokerManager();
+			Auction auction = null;
+			auction = em.find(Auction.class, identity);
+			
+			if(auction == null) throw new EntityNotFoundException();
+			
+			return auction;
+
+		} catch (final EntityNotFoundException exception) {
+			throw new ClientErrorException(404);
+		}
+	}
+
+<<<<<<< HEAD
 	
    @PUT
    @Path("/auctions")
@@ -146,34 +147,51 @@ public class AuctionService {
 		    }else{
 		    	auction = em.find(Auction.class, template.getIdentity());
 		    }
+=======
+	@PUT
+	@Path("/auctions")
+	@Consumes({ "application/xml", "application/json" })
+	public Response alterAuction(@NotNull @Valid Auction template, @QueryParam("sellerID") @NotNull Long sellerID) {
+		try {
+
+			EntityManager em = LifeCycleProvider.brokerManager();
+
+			boolean createmode = template.getIdentity() == 0;
+
+			long id = (sellerID != null) ? sellerID : 1;
+			Person p = em.find(Person.class, id);
+			
+			if(p == null) throw new EntityNotFoundException("Seller not found!");
+
+			Auction auction = createmode ? new Auction(p) : em.find(Auction.class, template.getIdentity());
+>>>>>>> 9289feb93b0a733e0990c9c38c82ab67a2943f19
 
 			auction.setTitle(template.getTitle());
 			auction.setDescription(template.getDescription());
 			auction.setUnitCount(template.getUnitCount());
 			auction.setAskingPrice(template.getAskingPrice());
-			
-			if(createmode)
+
+			if (createmode)
 				em.persist(auction);
-			else 
+			else
 				em.flush();
-			
-			try{ // Start Commit --------------------
+
+			try { // Start Commit --------------------
 				em.getTransaction().commit();
-			}finally{
-				if (em.getTransaction().isActive()) {
-					em.getTransaction().rollback();
-				}	
+			} finally {
+				em.getTransaction().begin();
 			} // End Commit -------------------------
 
 			return Response.ok(auction.getIdentity()).build();
-			
-		// TODO Errorhandling
-		}catch (final EntityNotFoundException exception) {
-			throw new ClientErrorException(NOT_FOUND);
-		} catch (final RollbackException exception) {
-			throw new ClientErrorException(CONFLICT);
-		} 
-	   
-   }
+
+		} catch (Exception exception) {
+			if(exception instanceof EntityNotFoundException) throw new ClientErrorException(404);
+			if(exception instanceof ConstraintViolationException) throw new ClientErrorException(400);
+			if(exception instanceof RollbackException) throw new ClientErrorException(409);
+			if(exception instanceof IllegalArgumentException) throw new ClientErrorException(400);
+			throw new InternalServerErrorException();
+		}
+
+	}
 
 }

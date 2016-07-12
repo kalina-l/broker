@@ -19,7 +19,7 @@ import de.sb.java.validation.Inequal;
  *
  */
 @Entity
-@XmlRootElement
+// @XmlRootElement // TODO muss man wegmachen? nur baseentity? zirkuläre probleme bei anderen 
 @Table(schema = "broker", name = "bid")
 @PrimaryKeyJoinColumn(name = "bidIdentity")
 @Inequal(leftAccessPath = { "price" }, rightAccessPath = { "auction", "askingPrice" } , operator = Inequal.Operator.GREATER_EQUAL )
