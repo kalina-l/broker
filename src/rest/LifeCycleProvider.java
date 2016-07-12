@@ -3,14 +3,18 @@ package rest;
 import static java.util.logging.Level.WARNING;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Logger;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import javax.persistence.PersistenceException;
+import javax.persistence.TypedQuery;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.WebApplicationException;
@@ -19,6 +23,7 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
@@ -55,8 +60,7 @@ public class LifeCycleProvider implements ContainerRequestFilter, ContainerRespo
 	static private volatile EntityManagerFactory BROKER_FACTORY;
 	static private final ThreadLocal<EntityManager> BROKER_THREAD_LOCAL = new ThreadLocal<>();
 	static private final Object MONITOR = new Object();
-	static private final String PERSON_BY_ALIAS = "select p from Person as p where p.alias = :alias";
-
+	
 
 	/**
 	 * Returns the (lazy initialized) broker factory.
@@ -102,8 +106,9 @@ public class LifeCycleProvider implements ContainerRequestFilter, ContainerRespo
 	 * @see HttpAuthenticationCodec#decode(String)
 	 */
 	static public Person authenticate (final String authentication) {
-		if (authentication == null) throw new NotAuthorizedException("Basic");
-
+		if (authentication == null) 
+			throw new NotAuthorizedException("Basic");
+		final EntityManager entityManager = brokerManager();
 		final Map<String,String> credentials;
 		try {
 			credentials = HttpAuthenticationCodec.decode(authentication);
@@ -114,14 +119,31 @@ public class LifeCycleProvider implements ContainerRequestFilter, ContainerRespo
 		final String mode = credentials.get("mode");
 		final String username = credentials.get("username");
 		final String password = credentials.get("password");
-		if (!"basic".equals(mode) | username == null | password == null) throw new NotAuthorizedException("Basic");
+		if (!"basic".equals(mode) | username == null | password == null) 
+			throw new NotAuthorizedException("Basic");
 
-		// TODO: Replace with implementation of JPA authentication by calculating the password hash from the given
-		// password, creating a query using the constant below, and returning the person if it matches the password hash.
-		// If there is none, or if it fails the password hash check, then throw NotAuthorizedException("Basic"). Note
-		// that this exception type is a specialized Subclass of ClientErrorException that is capable of storing a
-		// challenge, in this case for Basic Authorization. 
-		throw new AssertionError(PERSON_BY_ALIAS);
+		entityManager.getTransaction().begin();
+		Person person;	
+		try{
+			byte[] passwordHash = Person.passwordHash(password);
+			//TODO besser ID : LONG
+			TypedQuery<Long> query = entityManager.createQuery("SELECT x.identity FROM Person x WHERE "
+					+ "(x.alias = :username) and"
+					+ "(x.passwordHash = :passwordHash)", 
+					Long.class)
+					.setParameter("username", username)
+					.setParameter("passwordHash", passwordHash);
+			Long id = query.getSingleResult();
+			person = entityManager.find(Person.class, id);
+		}catch(NoResultException e){
+			throw new ClientErrorException(Status.UNAUTHORIZED);
+		}
+		finally{
+			if (entityManager.getTransaction().isActive()) {
+				entityManager.getTransaction().rollback();
+			}	
+		}
+		return person;
 	}
 
 

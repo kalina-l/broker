@@ -31,204 +31,191 @@ import model.Bid;
 import model.Person;
 
 @Path("/")
-public class PersonService{
-	
-	static private EntityManagerFactory ENTITY_MANAGER_FACTORY = Persistence.createEntityManagerFactory("broker");
+public class PersonService {
 
-	
+	static private EntityManagerFactory ENTITY_MANAGER_FACTORY = Persistence.createEntityManagerFactory("broker");
+	static private final String QUERYSTRING = "SELECT p.identity FROM Person p WHERE "
+			+ "(:creationTimeLowerLimit is null or p.creationTimeStamp >= :creationTimeLowerLimit) and"
+			+ "(:creationTimeUpperLimit is null or p.creationTimeStamp <= :creationTimeUpperLimit) and"
+			+ "(:alias is null or p.alias = :alias) and" + "(:givenName is null or p.name.given = :givenName) and"
+			+ "(:familyName is null or p.name.family = :familyName) and"
+			+ "(:street is null or p.address.street = :street) and"
+			+ "(:postalCode is null or p.address.postalCode = :postalCode) and"
+			+ "(:city is null or p.address.city = :city) and" + "(:phone is null or p.contact.phone = :phone) and"
+			+ "(:email is null or p.contact.email = :email)";
+
 	// object zurück geben wenn code 200
 	// response wenn zb jpg oder png, oder relationen
 	@GET
 	@Path("/people")
-	@Produces({"application/xml", "application/json"})
-	public Response getPersons( 
+	@Produces({ "application/xml", "application/json" })
+	public Response getPersons(@QueryParam("resultOffset") int resultOffset,
+			@QueryParam("resultLength") int resultLength,
 			@QueryParam("creationTimeLowerLimit") Long creationTimeLowerLimit,
-			@QueryParam("creationTimeUpperLimit") Long creationTimeUpperLimit,
-			@QueryParam("alias") String alias,
-			@QueryParam("givenName") String givenName,
-			@QueryParam("familyName") String familyName,
-			@QueryParam("street") String street,
-			@QueryParam("postalCode") String postalCode,
-			@QueryParam("city") String city,
-			@QueryParam("phone") String phone,
-			@QueryParam("email") String email){
-		
+			@QueryParam("creationTimeUpperLimit") Long creationTimeUpperLimit, @QueryParam("alias") String alias,
+			@QueryParam("givenName") String givenName, @QueryParam("familyName") String familyName,
+			@QueryParam("street") String street, @QueryParam("postalCode") String postalCode,
+			@QueryParam("city") String city, @QueryParam("phone") String phone, @QueryParam("email") String email) {
+
 		EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
-		TypedQuery<Long> query;		
+		TypedQuery<Long> query;
 		em.getTransaction().begin();
-		try{
-			try{
-				query = em.createQuery("SELECT p.identity FROM Person p WHERE "
-						+ "(:creationTimeLowerLimit is null or p.creationTimeStamp >= :creationTimeLowerLimit) and"
-						+ "(:creationTimeUpperLimit is null or p.creationTimeStamp <= :creationTimeUpperLimit) and"
-						+ "(:alias is null or p.alias = :alias) and"
-						+ "(:givenName is null or p.name.given = :givenName) and"
-						+ "(:familyName is null or p.name.family = :familyName) and"
-						+ "(:street is null or p.address.street = :street) and"
-						+ "(:postalCode is null or p.address.postalCode = :postalCode) and"
-						+ "(:city is null or p.address.city = :city) and"
-						+ "(:phone is null or p.contact.phone = :phone) and"
-						+ "(:email is null or p.contact.email = :email)", 
-						Long.class)
+		try {
+			try {
+
+				query = em.createQuery(QUERYSTRING, Long.class)
 						.setParameter("creationTimeLowerLimit", creationTimeLowerLimit)
-						.setParameter("creationTimeUpperLimit", creationTimeUpperLimit)
-						.setParameter("alias", alias)
-						.setParameter("givenName", givenName)
-						.setParameter("familyName", familyName)
-						.setParameter("street", street)
-						.setParameter("postalCode", postalCode)
-						.setParameter("city", city)
-						.setParameter("phone", phone)
-						.setParameter("email", email);			
-			}
-			finally{
-				// Notweding bei GET ???
-				if (em.getTransaction().isActive()) {
-						em.getTransaction().rollback();
-				}	
-			}			
-			
-			List<Long> idList = query.getResultList();
-			List<Person> personList = new ArrayList<>();
-			for (Long id:  idList){
-				Person temp = em.find(Person.class, id);
-				if (temp != null)
+						.setParameter("creationTimeUpperLimit", creationTimeUpperLimit).setParameter("alias", alias)
+						.setParameter("givenName", givenName).setParameter("familyName", familyName)
+						.setParameter("street", street).setParameter("postalCode", postalCode)
+						.setParameter("city", city).setParameter("phone", phone).setParameter("email", email);
+				if (resultLength > 0)
+					query.setMaxResults(resultLength);
+				if (resultOffset > 0)
+					query.setFirstResult(resultOffset);
+
+				List<Long> idList = query.getResultList();
+				List<Person> personList = new ArrayList<>();
+				for (Long id : idList) {
+					Person temp = em.find(Person.class, id);
+					if (temp != null)
 						personList.add(temp);
+				}
+
+				GenericEntity<List<Person>> entity = new GenericEntity<List<Person>>(Lists.newArrayList(personList)) {
+				};
+				return Response.ok(entity).build();
+
+				// TODO Errorhandling
+			} catch (final EntityNotFoundException exception) {
+				throw new ClientErrorException(NOT_FOUND);
+			} catch (final RollbackException exception) {
+				throw new ClientErrorException(CONFLICT);
 			}
-			
-			GenericEntity<List<Person>> entity = 
-		            new GenericEntity<List<Person>>(Lists.newArrayList(personList)) {};
-		        return Response.ok(entity).build();
-			
-		// TODO Errorhandling
-		}catch (final EntityNotFoundException exception) {
-			throw new ClientErrorException(NOT_FOUND);
-		} catch (final RollbackException exception) {
-			throw new ClientErrorException(CONFLICT);
-		} 
+
+		} finally {
+			// Notweding bei GET !!! --> bei aufgabe 4 nicht nutzen, nur commit + begin
+			if (em.getTransaction().isActive()) {
+				em.getTransaction().rollback();
+			}
+		}
 	}
-	
-	
-	
+
 	@GET
 	@Path("/people/{identity}")
-	@Produces({"application/xml", "application/json"})
-	public Person getPersonByID(@PathParam("identity") long identity){
-		try{
+	@Produces({ "application/xml", "application/json" })
+	public Person getPersonByID(@PathParam("identity") long identity) {
+		try {
 			EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
 			Person person;
-			em.getTransaction().begin();			
+			em.getTransaction().begin();
 			person = em.find(Person.class, identity);
-			
-//			try{
-//					em.getTransaction().commit();
-//			}finally{
-//					if (em.getTransaction().isActive()) {
-//						em.getTransaction().rollback();
-//					}	
-//			}
-			
+
+			// try{
+			// em.getTransaction().commit();
+			// }finally{
+			// if (em.getTransaction().isActive()) {
+			// em.getTransaction().rollback();
+			// }
+			// }
+
 			return person;
-		
-		}catch (final EntityNotFoundException exception) {
+
+		} catch (final EntityNotFoundException exception) {
 			throw new ClientErrorException(NOT_FOUND);
 		} catch (final RollbackException exception) {
 			throw new ClientErrorException(CONFLICT);
 		}
 	}
-	
-	
-	
+
 	@GET
 	@Path("/people/{identity}/auctions")
-	@Produces({"application/xml", "application/json"})
-	public Response getAuctionsByPersonID(@PathParam("identity") long identity){
-		
-		try{
-			EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();	
+	@Produces({ "application/xml", "application/json" })
+	public Response getAuctionsByPersonID(@PathParam("identity") long identity) {
+
+		try {
+			EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
 			em.getTransaction().begin();
-			
+
 			final Person person = em.find(Person.class, identity);
 			Set<Auction> allAuctions = new HashSet<Auction>();
 			allAuctions.addAll(person.getAuctions());
-			
+
 			Set<Bid> bids = person.getBids();
 			// Get auctions with bidder reference
-			for(Bid b : bids){
+			for (Bid b : bids) {
 				allAuctions.add(b.getAuction());
 			}
-						
-//			try{ // Start Commit --------------------
-//				em.getTransaction().commit();
-//			}finally{
-//				if (em.getTransaction().isActive()) {
-//					em.getTransaction().rollback();
-//				}	
-//			} // End Commit -------------------------
 
-			GenericEntity<List<Auction>> entity = 
-		            new GenericEntity<List<Auction>>(Lists.newArrayList(allAuctions)) {};
-		        return Response.ok(entity).build();
-			
-		// TODO Errorhandling
-		}catch (final EntityNotFoundException exception) {
+			// try{ // Start Commit --------------------
+			// em.getTransaction().commit();
+			// }finally{
+			// if (em.getTransaction().isActive()) {
+			// em.getTransaction().rollback();
+			// }
+			// } // End Commit -------------------------
+
+			GenericEntity<List<Auction>> entity = new GenericEntity<List<Auction>>(Lists.newArrayList(allAuctions)) {
+			};
+			return Response.ok(entity).build();
+
+			// TODO Errorhandling
+		} catch (final EntityNotFoundException exception) {
 			throw new ClientErrorException(NOT_FOUND);
 		} catch (final RollbackException exception) {
 			throw new ClientErrorException(CONFLICT);
-		} 
+		}
 	}
 
-	
-	
 	@GET
 	@Path("/people/{identity}/bids")
-	@Produces({"application/xml", "application/json"})
-	public Response getClosedBidsByPersonID(@PathParam("identity") long identity){
-		
-		try{
-			EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();	
+	@Produces({ "application/xml", "application/json" })
+	public Response getClosedBidsByPersonID(@PathParam("identity") long identity) {
+
+		try {
+			EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
 			em.getTransaction().begin();
-			
+
 			Person person = em.find(Person.class, identity);
 			Set<Bid> closedBids = new HashSet<Bid>();
 			Set<Bid> bids = person.getBids();
-			for(Bid b : bids){
+			for (Bid b : bids) {
 				if (b.getAuction().isClosed())
 					closedBids.add(b);
 			}
-				
-//			try{ // Start Commit --------------------
-//				em.getTransaction().commit();
-//			}finally{
-//				if (em.getTransaction().isActive()) {
-//					em.getTransaction().rollback();
-//				}	
-//			} // End Commit -------------------------
 
-			GenericEntity<List<Bid>> entity = 
-		            new GenericEntity<List<Bid>>(Lists.newArrayList(closedBids)) {};
-		        return Response.ok(entity).build();
-			
-		// TODO Errorhandling
-		}catch (final EntityNotFoundException exception) {
+			// try{ // Start Commit --------------------
+			// em.getTransaction().commit();
+			// }finally{
+			// if (em.getTransaction().isActive()) {
+			// em.getTransaction().rollback();
+			// }
+			// } // End Commit -------------------------
+
+			GenericEntity<List<Bid>> entity = new GenericEntity<List<Bid>>(Lists.newArrayList(closedBids)) {
+			};
+			return Response.ok(entity).build();
+
+			// TODO Errorhandling
+		} catch (final EntityNotFoundException exception) {
 			throw new ClientErrorException(NOT_FOUND);
 		} catch (final RollbackException exception) {
 			throw new ClientErrorException(CONFLICT);
-		} 
+		}
 	}
-	
-   @PUT
-   @Path("/people")
-   @Consumes({"application/xml", "application/json"})
-   public Response alterPerson(Person template){
-	   try{
-		   
-			EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();	
-			
+
+	@PUT
+	@Path("/people")
+	@Consumes({ "application/xml", "application/json" })
+	public Response alterPerson(Person template) {
+		try {
+
+			EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
+
 			boolean createmode = template.getIdentity() == 0;
-			em.getTransaction().begin();		
-			Person person =  createmode ? new Person() : em.find(Person.class, template.getIdentity());
-			
+			em.getTransaction().begin();
+			Person person = createmode ? new Person() : em.find(Person.class, template.getIdentity());
+
 			person.setAlias(template.getAlias());
 			person.setGroup(template.getGroup());
 			person.getName().setFamily(template.getName().getFamily());
@@ -238,32 +225,30 @@ public class PersonService{
 			person.getAddress().setCity(template.getAddress().getCity());
 			person.getContact().setEmail(template.getContact().getEmail());
 			person.getContact().setPhone(template.getContact().getPhone());
-			
+
 			if (createmode)
 				em.persist(person);
-			else 
+			else
 				em.flush();
 
-			try{ // Start Commit --------------------
+			try { // Start Commit --------------------
 				em.getTransaction().commit();
-			}finally{
+			} finally {
 				if (em.getTransaction().isActive()) {
 					em.getTransaction().rollback();
-				}	
+				}
 			} // End Commit -------------------------
 
-
 			return Response.ok(person.getIdentity()).build();
-			
-		// TODO Errorhandling
-		}catch (final EntityNotFoundException exception) {
+
+			// TODO Errorhandling
+		} catch (final EntityNotFoundException exception) {
 			throw new ClientErrorException(NOT_FOUND);
 		} catch (final RollbackException exception) {
 			// Duplicate entry mail or alias
 			throw new ClientErrorException(CONFLICT);
-		} 
-	   
-   }
+		}
 
+	}
 
 }

@@ -30,11 +30,21 @@ import model.Person;
 public class AuctionService {
 
 	static private EntityManagerFactory ENTITY_MANAGER_FACTORY = Persistence.createEntityManagerFactory("broker");
-	
+	static private final String QUERYSTRING = "SELECT x.identity FROM Auction x WHERE "
+			+ "(:creationTimeLowerLimit is null or x.creationTimeStamp >= :creationTimeLowerLimit) and"
+			+ "(:creationTimeUpperLimit is null or x.creationTimeStamp <= :creationTimeUpperLimit) and"
+			+ "(:title is null or x.title = :title) and"
+			+ "(:description is null or x.description = :description) and"
+			+ "(:unitCount is null or x.unitCount = :unitCount) and"
+			+ "(:askingPrice is null or x.askingPrice = :askingPrice) and"
+			+ "(:closureTimeLowerLimit is null or x.closureTimeStamp >= :closureTimeLowerLimit) and"
+			+ "(:closureTimeUpperLimit is null or x.closureTimeStamp <= :closureTimeUpperLimit)";
 	@GET
 	@Path("/auctions")
 	@Produces({"application/xml", "application/json"})
 	public Response getAuctions(
+			@QueryParam("resultLength") int resultLength,
+			@QueryParam("resultOffset") int resultOffset,
 			@QueryParam("creationTimeLowerLimit") Long creationTimeLowerLimit,
 			@QueryParam("creationTimeUpperLimit") Long creationTimeUpperLimit,
 			@QueryParam("closureTimeLowerLimit") Long closureTimeLowerLimit,
@@ -42,23 +52,14 @@ public class AuctionService {
 			@QueryParam("title") String title,
 			@QueryParam("description") String description,
 			@QueryParam("unitCount") Long unitCount,
-			@QueryParam("askingPrice") Long askingPrice){
+			@QueryParam("askingPrice") String askingPrice){
 		
 		EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
 		TypedQuery<Long> query;			
 		em.getTransaction().begin();
 		try{
 			try{
-				query = em.createQuery("SELECT x.identity FROM Auction x WHERE "
-							+ "(:creationTimeLowerLimit is null or x.creationTimeStamp >= :creationTimeLowerLimit) and"
-							+ "(:creationTimeUpperLimit is null or x.creationTimeStamp <= :creationTimeUpperLimit) and"
-							+ "(:title is null or x.title = :title) and"
-							+ "(:description is null or x.description = :description) and"
-							+ "(:unitCount is null or x.unitCount = :unitCount) and"
-							+ "(:askingPrice is null or x.askingPrice = :askingPrice) and"
-							+ "(:closureTimeLowerLimit is null or x.closureTimeStamp >= :closureTimeLowerLimit) and"
-							+ "(:closureTimeUpperLimit is null or x.closureTimeStamp <= :closureTimeUpperLimit)",
-							Long.class)
+				query = em.createQuery(QUERYSTRING,	Long.class)
 							.setParameter("creationTimeLowerLimit", creationTimeLowerLimit)
 							.setParameter("creationTimeUpperLimit", creationTimeUpperLimit)
 							.setParameter("title", title)
@@ -66,7 +67,9 @@ public class AuctionService {
 							.setParameter("unitCount", unitCount)
 							.setParameter("askingPrice", askingPrice)
 							.setParameter("closureTimeLowerLimit", closureTimeLowerLimit)
-							.setParameter("closureTimeUpperLimit", closureTimeUpperLimit);		
+							.setParameter("closureTimeUpperLimit", closureTimeUpperLimit);	
+				if (resultLength > 0) query.setMaxResults(resultLength);
+				if (resultOffset > 0) query.setFirstResult(resultOffset);
 			}
 			finally{
 				if (em.getTransaction().isActive()) {
@@ -134,12 +137,16 @@ public class AuctionService {
 		   boolean createmode = template.getIdentity() == 0;
 		   
 		   em.getTransaction().begin();
-		    //woher bekommen wir die seller ID?
-		    long id = (sellerID != null) ? sellerID : 1;
-		    Person p = em.find(Person.class, id);
-		    
-			Auction auction = createmode ? new Auction(p) : em.find(Auction.class, template.getIdentity());	
-			
+
+		    Auction auction;	    
+		    if (createmode){
+		    	if(sellerID == null) throw new NullPointerException();
+		    	Person p = em.find(Person.class, sellerID);
+		    	auction = new Auction(p);
+		    }else{
+		    	auction = em.find(Auction.class, template.getIdentity());
+		    }
+
 			auction.setTitle(template.getTitle());
 			auction.setDescription(template.getDescription());
 			auction.setUnitCount(template.getUnitCount());
