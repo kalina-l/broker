@@ -1,23 +1,18 @@
 package rest;
 
-import static javax.ws.rs.core.Response.Status.CONFLICT;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityNotFoundException;
-import javax.persistence.Persistence;
 import javax.persistence.RollbackException;
 import javax.persistence.TypedQuery;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
-import javax.validation.constraints.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -30,8 +25,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 
-import com.fasterxml.classmate.Filter;
-
 import jersey.repackaged.com.google.common.collect.Lists;
 import model.Auction;
 import model.Bid;
@@ -40,7 +33,6 @@ import model.Person;
 @Path("/")
 public class PersonService {
 
-	static private EntityManagerFactory ENTITY_MANAGER_FACTORY = Persistence.createEntityManagerFactory("broker");
 	static private final String QUERYSTRING = "SELECT p.identity FROM Person p WHERE "
 			+ "(:creationTimeLowerLimit is null or p.creationTimeStamp >= :creationTimeLowerLimit) and"
 			+ "(:creationTimeUpperLimit is null or p.creationTimeStamp <= :creationTimeUpperLimit) and"
@@ -56,23 +48,16 @@ public class PersonService {
 	@GET
 	@Path("/people")
 	@Produces({ "application/xml", "application/json" })
-<<<<<<< HEAD
 	public Response getPersons(@QueryParam("resultOffset") int resultOffset,
 			@QueryParam("resultLength") int resultLength,
 			@QueryParam("creationTimeLowerLimit") Long creationTimeLowerLimit,
-=======
-	public Response getPersons(@QueryParam("creationTimeLowerLimit") Long creationTimeLowerLimit,
->>>>>>> 9289feb93b0a733e0990c9c38c82ab67a2943f19
 			@QueryParam("creationTimeUpperLimit") Long creationTimeUpperLimit, @QueryParam("alias") String alias,
 			@QueryParam("givenName") String givenName, @QueryParam("familyName") String familyName,
 			@QueryParam("street") String street, @QueryParam("postalCode") String postalCode,
 			@QueryParam("city") String city, @QueryParam("phone") String phone, @QueryParam("email") String email) {
 
-<<<<<<< HEAD
-		EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
+		EntityManager em = LifeCycleProvider.brokerManager();
 		TypedQuery<Long> query;
-		em.getTransaction().begin();
-		try {
 			try {
 
 				query = em.createQuery(QUERYSTRING, Long.class)
@@ -94,93 +79,23 @@ public class PersonService {
 						personList.add(temp);
 				}
 
+				if(idList.isEmpty()){
+					throw new EntityNotFoundException();
+				}
+				
 				GenericEntity<List<Person>> entity = new GenericEntity<List<Person>>(Lists.newArrayList(personList)) {
 				};
 				return Response.ok(entity).build();
 
-				// TODO Errorhandling
+				
 			} catch (final EntityNotFoundException exception) {
-				throw new ClientErrorException(NOT_FOUND);
-			} catch (final RollbackException exception) {
-				throw new ClientErrorException(CONFLICT);
-			}
-
-		} finally {
-			// Notweding bei GET !!! --> bei aufgabe 4 nicht nutzen, nur commit + begin
-			if (em.getTransaction().isActive()) {
-				em.getTransaction().rollback();
-			}
-=======
-		EntityManager em = LifeCycleProvider.brokerManager();
-		TypedQuery<Long> query;
-		try {
-			query = em
-					.createQuery("SELECT p.identity FROM Person p WHERE "
-							+ "(:creationTimeLowerLimit is null or p.creationTimeStamp >= :creationTimeLowerLimit) and"
-							+ "(:creationTimeUpperLimit is null or p.creationTimeStamp <= :creationTimeUpperLimit) and"
-							+ "(:alias is null or p.alias = :alias) and"
-							+ "(:givenName is null or p.name.given = :givenName) and"
-							+ "(:familyName is null or p.name.family = :familyName) and"
-							+ "(:street is null or p.address.street = :street) and"
-							+ "(:postalCode is null or p.address.postalCode = :postalCode) and"
-							+ "(:city is null or p.address.city = :city) and"
-							+ "(:phone is null or p.contact.phone = :phone) and"
-							+ "(:email is null or p.contact.email = :email)", Long.class)
-					.setParameter("creationTimeLowerLimit", creationTimeLowerLimit)
-					.setParameter("creationTimeUpperLimit", creationTimeUpperLimit).setParameter("alias", alias)
-					.setParameter("givenName", givenName).setParameter("familyName", familyName)
-					.setParameter("street", street).setParameter("postalCode", postalCode).setParameter("city", city)
-					.setParameter("phone", phone).setParameter("email", email);
-
-			List<Long> idList = query.getResultList();
-			List<Person> personList = new ArrayList<>();
-			for (Long id : idList) {
-				Person temp = em.find(Person.class, id);
-				if (temp != null)
-					personList.add(temp);
-			}
-
-			if(idList.isEmpty()){
-				throw new EntityNotFoundException();
-			}
-			
-			GenericEntity<List<Person>> entity = new GenericEntity<List<Person>>(Lists.newArrayList(personList)) {
-			};
-			return Response.ok(entity).build();
-
-			
-		} catch (final EntityNotFoundException exception) {
-			throw new ClientErrorException(404);
->>>>>>> 9289feb93b0a733e0990c9c38c82ab67a2943f19
-		}
+				throw new ClientErrorException(404);
+				}
 	}
 
 	@GET
 	@Path("/people/{identity}")
 	@Produces({ "application/xml", "application/json" })
-<<<<<<< HEAD
-	public Person getPersonByID(@PathParam("identity") long identity) {
-		try {
-			EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
-			Person person;
-			em.getTransaction().begin();
-			person = em.find(Person.class, identity);
-
-			// try{
-			// em.getTransaction().commit();
-			// }finally{
-			// if (em.getTransaction().isActive()) {
-			// em.getTransaction().rollback();
-			// }
-			// }
-
-			return person;
-
-		} catch (final EntityNotFoundException exception) {
-			throw new ClientErrorException(NOT_FOUND);
-		} catch (final RollbackException exception) {
-			throw new ClientErrorException(CONFLICT);
-=======
 	public Person getPersonByID(@NotNull @Min(1) @PathParam("identity") long identity) {
 		try {
 			EntityManager em = LifeCycleProvider.brokerManager();
@@ -196,25 +111,15 @@ public class PersonService {
 			if(exception instanceof EntityNotFoundException) throw new ClientErrorException(404);
 			if(exception instanceof IllegalArgumentException) throw new ClientErrorException(400);
 			throw new InternalServerErrorException();
->>>>>>> 9289feb93b0a733e0990c9c38c82ab67a2943f19
 		}
 	}
 
 	@GET
 	@Path("/people/{identity}/auctions")
 	@Produces({ "application/xml", "application/json" })
-<<<<<<< HEAD
-	public Response getAuctionsByPersonID(@PathParam("identity") long identity) {
-
-		try {
-			EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
-			em.getTransaction().begin();
-=======
 	public Response getAuctionsByPersonID(@NotNull @Min(1) @PathParam("identity") long identity) {
-
 		try {
 			EntityManager em = LifeCycleProvider.brokerManager();
->>>>>>> 9289feb93b0a733e0990c9c38c82ab67a2943f19
 
 			final Person person = em.find(Person.class, identity);
 			Set<Auction> allAuctions = new HashSet<Auction>();
@@ -226,57 +131,28 @@ public class PersonService {
 				allAuctions.add(b.getAuction());
 			}
 
-<<<<<<< HEAD
-			// try{ // Start Commit --------------------
-			// em.getTransaction().commit();
-			// }finally{
-			// if (em.getTransaction().isActive()) {
-			// em.getTransaction().rollback();
-			// }
-			// } // End Commit -------------------------
-
-=======
 			if(bids.isEmpty()){
 				throw new EntityNotFoundException();
 			}
 			
->>>>>>> 9289feb93b0a733e0990c9c38c82ab67a2943f19
 			GenericEntity<List<Auction>> entity = new GenericEntity<List<Auction>>(Lists.newArrayList(allAuctions)) {
 			};
 			return Response.ok(entity).build();
-
-<<<<<<< HEAD
-			// TODO Errorhandling
-		} catch (final EntityNotFoundException exception) {
-			throw new ClientErrorException(NOT_FOUND);
-		} catch (final RollbackException exception) {
-			throw new ClientErrorException(CONFLICT);
-=======
 			
 		} catch (Exception exception) {
 			if(exception instanceof EntityNotFoundException) throw new ClientErrorException(404);
 			if(exception instanceof IllegalArgumentException) throw new ClientErrorException(400);
 			throw new InternalServerErrorException();
->>>>>>> 9289feb93b0a733e0990c9c38c82ab67a2943f19
 		}
 	}
 
 	@GET
 	@Path("/people/{identity}/bids")
 	@Produces({ "application/xml", "application/json" })
-<<<<<<< HEAD
-	public Response getClosedBidsByPersonID(@PathParam("identity") long identity) {
-
-		try {
-			EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
-			em.getTransaction().begin();
-=======
 	public Response getClosedBidsByPersonID(@NotNull @Min(1) @PathParam("identity") long identity) {
 
 		try {
 			EntityManager em = LifeCycleProvider.brokerManager();
->>>>>>> 9289feb93b0a733e0990c9c38c82ab67a2943f19
-
 			Person person = em.find(Person.class, identity);
 			Set<Bid> closedBids = new HashSet<Bid>();
 			Set<Bid> bids = person.getBids();
@@ -284,60 +160,30 @@ public class PersonService {
 				if (b.getAuction().isClosed())
 					closedBids.add(b);
 			}
-
-<<<<<<< HEAD
-			// try{ // Start Commit --------------------
-			// em.getTransaction().commit();
-			// }finally{
-			// if (em.getTransaction().isActive()) {
-			// em.getTransaction().rollback();
-			// }
-			// } // End Commit -------------------------
-
-=======
 			if(bids.isEmpty()){
 				throw new EntityNotFoundException();
 			}
 			
->>>>>>> 9289feb93b0a733e0990c9c38c82ab67a2943f19
 			GenericEntity<List<Bid>> entity = new GenericEntity<List<Bid>>(Lists.newArrayList(closedBids)) {
 			};
 			return Response.ok(entity).build();
 
-<<<<<<< HEAD
-			// TODO Errorhandling
-		} catch (final EntityNotFoundException exception) {
-			throw new ClientErrorException(NOT_FOUND);
-		} catch (final RollbackException exception) {
-			throw new ClientErrorException(CONFLICT);
-=======
 		} catch (Exception exception) {
 			if(exception instanceof EntityNotFoundException) throw new ClientErrorException(404);
 			if(exception instanceof IllegalArgumentException) throw new ClientErrorException(400);
 			throw new InternalServerErrorException();
->>>>>>> 9289feb93b0a733e0990c9c38c82ab67a2943f19
 		}
 	}
 
 	@PUT
 	@Path("/people")
 	@Consumes({ "application/xml", "application/json" })
-<<<<<<< HEAD
-	public Response alterPerson(Person template) {
-		try {
-
-			EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
-
-			boolean createmode = template.getIdentity() == 0;
-			em.getTransaction().begin();
-=======
 	public Response alterPerson(@NotNull @Valid Person template) {
 		try {
 
 			EntityManager em = LifeCycleProvider.brokerManager();
 
 			boolean createmode = template.getIdentity() == 0;
->>>>>>> 9289feb93b0a733e0990c9c38c82ab67a2943f19
 			Person person = createmode ? new Person() : em.find(Person.class, template.getIdentity());
 
 			person.setAlias(template.getAlias());
@@ -358,7 +204,6 @@ public class PersonService {
 			try { // Start Commit --------------------
 				em.getTransaction().commit();
 			} finally {
-<<<<<<< HEAD
 				if (em.getTransaction().isActive()) {
 					em.getTransaction().rollback();
 				}
@@ -367,21 +212,6 @@ public class PersonService {
 			return Response.ok(person.getIdentity()).build();
 
 			// TODO Errorhandling
-		} catch (final EntityNotFoundException exception) {
-			throw new ClientErrorException(NOT_FOUND);
-		} catch (final RollbackException exception) {
-			// Duplicate entry mail or alias
-			throw new ClientErrorException(CONFLICT);
-		}
-
-	}
-=======
-				em.getTransaction().begin();
-			} // End Commit -------------------------
-
-			return Response.ok(person.getIdentity()).build();
->>>>>>> 9289feb93b0a733e0990c9c38c82ab67a2943f19
-
 		} catch (Exception exception) {
 			if(exception instanceof EntityNotFoundException) throw new ClientErrorException(404);
 			if(exception instanceof ConstraintViolationException) throw new ClientErrorException(400);
