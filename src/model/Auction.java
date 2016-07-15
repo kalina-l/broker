@@ -17,6 +17,8 @@ import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.glassfish.jersey.message.filtering.EntityFiltering;
+
 import de.sb.java.validation.Inequal;
 
 /**
@@ -25,7 +27,7 @@ import de.sb.java.validation.Inequal;
  *
  */
 @Entity
-// @XmlRootElement
+@XmlRootElement
 @Table(schema = "broker", name = "auction")
 @PrimaryKeyJoinColumn(name = "auctionIdentity")
 @Inequal(leftAccessPath = { "closureTimestamp" }, rightAccessPath = { "creationTimestamp" }, operator = Inequal.Operator.GREATER)
@@ -78,11 +80,14 @@ public class Auction extends BaseEntity {
 		this(null);
 	}
 	
-	
+	//@XmlElement
+	//@XmlSellerAsEntityFilter
 	public Person getSeller() {
 		return seller;
 	}
 	
+	//@XmlElement
+	//@XmlSellerAsReferenceFilter
 	public long getSellerReference() {	
 		return this.seller==null ? 0 : this.seller.getIdentity();
 	}
@@ -135,6 +140,8 @@ public class Auction extends BaseEntity {
 		this.unitCount = unitCount;
 	}
 	
+	//@XmlElement
+	//@XmlBidsAsEntityFilter
 	public Set<Bid> getBids(){
 		return bids;
 	}
@@ -150,7 +157,6 @@ public class Auction extends BaseEntity {
 	}
 
 	//virtual Properties
-	
 	@XmlElement
 	public boolean isSealed(){
 		return isClosed() | !bids.isEmpty() ? true : false;
@@ -161,4 +167,15 @@ public class Auction extends BaseEntity {
 		return System.currentTimeMillis() > this.closureTimeStamp ? true : false;
 	}
 
+	
+	@EntityFiltering
+	public @interface XmlSellerAsEntityFilter { }
+	
+	@EntityFiltering
+	public @interface XmlSellerAsReferenceFilter { }
+	
+	@EntityFiltering
+	public @interface XmlBidsAsEntityFilter { }
+	
+	
 }

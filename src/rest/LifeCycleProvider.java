@@ -139,10 +139,12 @@ public class LifeCycleProvider implements ContainerRequestFilter, ContainerRespo
 		final byte[] passwordHash = Person.passwordHash(password);
 		try {
 			final TypedQuery<Person> query = brokerManager().createQuery(
-					"select p from Person as p where p.alias = :alias and p.passwordHash = :passwordHash",
-					Person.class);
-			query.setParameter("alias", username);
-			query.setParameter("passwordHash", passwordHash);
+					"select p from Person as p where "
+					+ "p.alias = :alias and "
+					+ "p.passwordHash = :passwordHash",
+					Person.class)
+					.setParameter("alias", username)
+					.setParameter("passwordHash", passwordHash);
 			return query.getSingleResult(); // return person
 		} catch (NotAuthorizedException exception) {
 			throw new NotAuthorizedException("Basic");

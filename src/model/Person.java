@@ -28,7 +28,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 //@NamedQuery(name="Person.findAll", query="SELECT p FROM Person p")
 @Entity
-//@XmlRootElement
+@XmlRootElement
 @Table(schema = "broker", name = "person")
 @PrimaryKeyJoinColumn(name = "personIdentity")
 public class Person extends BaseEntity{
