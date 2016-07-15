@@ -112,9 +112,8 @@ public class AuctionService {
 				throw new ClientErrorException(404);
 			if (exception instanceof ForbiddenException)
 				throw new ClientErrorException(403);
-			if (exception instanceof NotAuthorizedException){
+			if (exception instanceof NotAuthorizedException)
 				throw new ClientErrorException(401);
-			}
 			throw new InternalServerErrorException();
 		}
 	}
@@ -150,9 +149,8 @@ public class AuctionService {
 				throw new ClientErrorException(404);
 			if (exception instanceof ForbiddenException)
 				throw new ClientErrorException(403);
-			if (exception instanceof NotAuthorizedException){
+			if (exception instanceof NotAuthorizedException)
 				throw new ClientErrorException(401);
-			}
 			throw new InternalServerErrorException();
 		}
 	}
@@ -198,9 +196,8 @@ public class AuctionService {
 				throw new ClientErrorException(400);
 			if (exception instanceof ForbiddenException)
 				throw new ClientErrorException(403);
-			if (exception instanceof NotAuthorizedException){
+			if (exception instanceof NotAuthorizedException)
 				throw new ClientErrorException(401);
-			}
 			throw new InternalServerErrorException();
 		}
 	}
@@ -271,9 +268,8 @@ public class AuctionService {
 				throw new ClientErrorException(403);
 			if (exception instanceof ForbiddenException)
 				throw new ClientErrorException(403);
-			if (exception instanceof NotAuthorizedException){
+			if (exception instanceof NotAuthorizedException)
 				throw new ClientErrorException(401);
-			}
 			throw new InternalServerErrorException();
 		}
 
@@ -339,9 +335,8 @@ public class AuctionService {
 				throw new ClientErrorException(400);
 			if (exception instanceof ForbiddenException)
 				throw new ClientErrorException(403);
-			if (exception instanceof NotAuthorizedException){
+			if (exception instanceof NotAuthorizedException)
 				throw new ClientErrorException(401);
-			}
 			throw new InternalServerErrorException();
 		}
 
