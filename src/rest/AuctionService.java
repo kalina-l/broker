@@ -185,12 +185,14 @@ public class AuctionService {
 	public Response alterAuction(@HeaderParam("Authorization") final String authentication,
 			@NotNull @Valid Auction template, @QueryParam("sellerID") @NotNull Long sellerID) {
 
-		// authenticate
+		// Authentification
+		// Logged in?
 		final Person requester = LifeCycleProvider.authenticate(authentication);
 		if (requester == null)
 			throw new ClientErrorException(Status.UNAUTHORIZED);
 		if (requester.getGroup() != ADMIN && requester.getGroup() != USER)
 			throw new ClientErrorException(FORBIDDEN);
+		
 		// end authenticate
 
 		try {
@@ -210,7 +212,11 @@ public class AuctionService {
 			auction.setDescription(template.getDescription());
 			auction.setUnitCount(template.getUnitCount());
 			auction.setAskingPrice(template.getAskingPrice());
-
+			
+			// User changing data of others?
+			if (requester.getGroup() == USER && !(requester.getIdentity() == template.getSeller().getIdentity()))
+				throw new ClientErrorException(FORBIDDEN);
+			
 			if (createmode)
 				em.persist(auction);
 			else
@@ -235,6 +241,8 @@ public class AuctionService {
 				throw new ClientErrorException(409);
 			if (exception instanceof IllegalArgumentException)
 				throw new ClientErrorException(400);
+			if (exception instanceof ClientErrorException)
+				throw new ClientErrorException(403);
 			throw new InternalServerErrorException();
 		}
 
