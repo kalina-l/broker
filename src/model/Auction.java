@@ -150,7 +150,7 @@ public class Auction extends BaseEntity {
 	@XmlElement
 	@XmlBidsAsEntityFilter
 	public Set<Bid> getBids(){
-		return bids;
+		return this.bids;
 	}
 
 	

@@ -34,6 +34,7 @@ import javax.ws.rs.core.Response.Status;
 
 import jersey.repackaged.com.google.common.collect.Lists;
 import model.Auction;
+import model.Auction.XmlBidsAsEntityFilter;
 import model.Bid;
 import model.Person;
 
@@ -158,6 +159,7 @@ public class PersonService {
 	@GET
 	@Path("/people/{identity}/auctions")
 	@Produces({ "application/xml", "application/json" })
+	@XmlBidsAsEntityFilter
 	public Response getAuctionsByPersonID(@HeaderParam("Authorization") final String authentication,
 			@NotNull @Min(1) @PathParam("identity") long identity) {
 
@@ -186,9 +188,11 @@ public class PersonService {
 				throw new EntityNotFoundException();
 			}
 
-			GenericEntity<List<Auction>> entity = new GenericEntity<List<Auction>>(Lists.newArrayList(allAuctions)) {
+			GenericEntity<List<Auction>> wrapper = new GenericEntity<List<Auction>>(Lists.newArrayList(allAuctions)) {
 			};
-			return Response.ok(entity).build();
+			Annotation[] filterAnnotations = new Annotation[] { new Auction.XmlSellerAsEntityFilter.Literal(), new Auction.XmlBidsAsEntityFilter.Literal()};
+			return Response.ok().entity(wrapper, filterAnnotations).build();
+		
 
 		} catch (Exception exception) {
 			if (exception instanceof EntityNotFoundException)
