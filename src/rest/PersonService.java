@@ -46,7 +46,7 @@ public class PersonService {
 			+ "(:alias is null or p.alias = :alias) and" + "(:givenName is null or p.name.given = :givenName) and"
 			+ "(:familyName is null or p.name.family = :familyName) and"
 			+ "(:street is null or p.address.street = :street) and"
-			+ "(:postalCode is null or p.address.postalCode = :postalCode) and"
+			+ "(:postCode is null or p.address.postCode = :postCode) and"
 			+ "(:city is null or p.address.city = :city) and" + "(:phone is null or p.contact.phone = :phone) and"
 			+ "(:email is null or p.contact.email = :email)";
 
@@ -76,7 +76,7 @@ public class PersonService {
 			@QueryParam("creationTimeLowerLimit") Long creationTimeLowerLimit,
 			@QueryParam("creationTimeUpperLimit") Long creationTimeUpperLimit, @QueryParam("alias") String alias,
 			@QueryParam("givenName") String givenName, @QueryParam("familyName") String familyName,
-			@QueryParam("street") String street, @QueryParam("postalCode") String postalCode,
+			@QueryParam("street") String street, @QueryParam("postCode") String postCode,
 			@QueryParam("city") String city, @QueryParam("phone") String phone, @QueryParam("email") String email) {
 
 		// authenticate
@@ -94,7 +94,7 @@ public class PersonService {
 					.setParameter("creationTimeLowerLimit", creationTimeLowerLimit)
 					.setParameter("creationTimeUpperLimit", creationTimeUpperLimit).setParameter("alias", alias)
 					.setParameter("givenName", givenName).setParameter("familyName", familyName)
-					.setParameter("street", street).setParameter("postalCode", postalCode).setParameter("city", city)
+					.setParameter("street", street).setParameter("postCode", postCode).setParameter("city", city)
 					.setParameter("phone", phone).setParameter("email", email);
 			if (resultLength > 0)
 				query.setMaxResults(resultLength);
@@ -285,7 +285,7 @@ public class PersonService {
 			person.getName().setFamily(template.getName().getFamily());
 			person.getName().setGiven(template.getName().getGiven());
 			person.getAddress().setStreet(template.getAddress().getStreet());
-			person.getAddress().setPostalCode(template.getAddress().getPostalCode());
+			person.getAddress().setPostCode(template.getAddress().getPostCode());
 			person.getAddress().setCity(template.getAddress().getCity());
 			person.getContact().setEmail(template.getContact().getEmail());
 			person.getContact().setPhone(template.getContact().getPhone());

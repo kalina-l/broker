@@ -1,17 +1,18 @@
 /**
- * com.broker.SessionContext: broker session context.
+ * de.sb.broker.SessionContext: broker session context.
  * Copyright (c) 2013-2015 Sascha Baumeister
  */
 "use strict";
 
-this.com = this.com || {};
-this.com.broker = this.com.broker || {};
+this.de = this.de || {};
+this.de.sb = this.de.sb || {};
+this.de.sb.broker = this.de.sb.broker || {};
 (function () {
 
 	/**
 	 * Creates an empty session context.
 	 */
-	com.broker.SessionContext = function () {
+	de.sb.broker.SessionContext = function () {
 		var self = this;
 
 		Object.defineProperty(this, "user", {
@@ -39,9 +40,8 @@ this.com.broker = this.com.broker || {};
 	/**
 	 * Clears this context.
 	 */
-	com.broker.SessionContext.prototype.clear = function () {
+	de.sb.broker.SessionContext.prototype.clear = function () {
 		this.user = null;
 		this.userPassword = null;
-		
 	}
 } ());

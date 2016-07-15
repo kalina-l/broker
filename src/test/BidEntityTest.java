@@ -54,7 +54,7 @@ public class BidEntityTest extends EntityTest{
 		seller.getName().setFamily("Testa");
 		seller.getAddress().setCity("Hamburg");
 		seller.getAddress().setStreet("Testallee 13");
-		seller.getAddress().setPostalCode("12345");
+		seller.getAddress().setPostCode("12345");
 		seller.getContact().setEmail("testa@test.com");
 		seller.getContact().setPhone("012345678");
 		
@@ -64,7 +64,7 @@ public class BidEntityTest extends EntityTest{
 		bidder.getName().setFamily("Bauer");
 		bidder.getAddress().setCity("Stuttgart");
 		bidder.getAddress().setStreet("Siegerstr. 1");
-		bidder.getAddress().setPostalCode("54321");
+		bidder.getAddress().setPostCode("54321");
 		bidder.getContact().setEmail("testaaa@test.com");
 		bidder.getContact().setPhone("98765421");
 		

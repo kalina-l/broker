@@ -1,19 +1,20 @@
 /**
- * com.broker.Controller: abstract controller.
+ * de.sb.broker.Controller: abstract controller.
  * Copyright (c) 2013-2015 Sascha Baumeister
  */
 "use strict";
 
-this.com = this.com || {};
-this.com.broker = this.com.broker || {};
+this.de = this.de || {};
+this.de.sb = this.de.sb || {};
+this.de.sb.broker = this.de.sb.broker || {};
 (function () {
 
 	/**
 	 * Creates an "abstract" controller.
 	 * @param viewOrdinal {Number} the ordinal of the view associated with this controller
-	 * @param sessionContext {com.broker.SessionContext} a session context
+	 * @param sessionContext {de.sb.broker.SessionContext} a session context
 	 */
-	com.broker.Controller = function (viewOrdinal, sessionContext) {
+	de.sb.broker.Controller = function (viewOrdinal, sessionContext) {
 		this.viewOrdinal = viewOrdinal;
 		this.sessionContext = sessionContext;
 	}
@@ -24,7 +25,7 @@ this.com.broker = this.com.broker || {};
 	 * view's menu item as selected, and removing the main element's
 	 * children.
 	 */
-	com.broker.Controller.prototype.display = function () {
+	de.sb.broker.Controller.prototype.display = function () {
 		var menuElements = document.querySelectorAll("nav li");
 
 		for (var viewOrdinal = 0; viewOrdinal < menuElements.length; ++viewOrdinal) {
@@ -47,7 +48,7 @@ this.com.broker = this.com.broker || {};
 	 * @param code {Number} the status code
 	 * @param message {String} the status message
 	 */
-	com.broker.Controller.prototype.displayStatus = function (code, message) {
+	de.sb.broker.Controller.prototype.displayStatus = function (code, message) {
 		var outputElement = document.querySelector("body > footer output");
 		outputElement.value = code + " " + (code === 0 ? "unreachable" : message);
 

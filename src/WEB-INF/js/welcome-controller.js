@@ -1,30 +1,30 @@
 /**
- * com.broker.WelcomeController: broker welcome controller.
+ * de.sb.broker.WelcomeController: broker welcome controller.
  * Copyright (c) 2013-2015 Sascha Baumeister
  */
 "use strict";
 
-this.com = this.com || {};
-this.com.broker = this.com.broker || {};
+this.de = this.de || {};
+this.de.sb = this.de.sb || {};
+this.de.sb.broker = this.de.sb.broker || {};
 (function () {
-	var SUPER = com.broker.Controller;
+	var SUPER = de.sb.broker.Controller;
 
 	/**
 	 * Creates a new welcome controller that is derived from an abstract controller.
-	 * @param sessionContext {com.broker.SessionContext} a session context
+	 * @param sessionContext {de.sb.broker.SessionContext} a session context
 	 */
-	com.broker.WelcomeController = function (sessionContext) {
+	de.sb.broker.WelcomeController = function (sessionContext) {
 		SUPER.call(this, 0, sessionContext);
 	}
-	com.broker.WelcomeController.prototype = Object.create(SUPER.prototype);
-	com.broker.WelcomeController.prototype.constructor = com.broker.WelcomeController;
+	de.sb.broker.WelcomeController.prototype = Object.create(SUPER.prototype);
+	de.sb.broker.WelcomeController.prototype.constructor = de.sb.broker.WelcomeController;
 
 
 	/**
 	 * Displays the associated view.
 	 */
-	com.broker.WelcomeController.prototype.display = function () {
-		//TODO - lazier handling of login credentials
+	de.sb.broker.WelcomeController.prototype.display = function () {
 		this.sessionContext.clear();
 		SUPER.prototype.display.call(this);
 
@@ -39,7 +39,7 @@ this.com.broker = this.com.broker || {};
 	 * session context if the login was successful, and initiates rendering of the
 	 * preferences view.
 	 */
-	com.broker.WelcomeController.prototype.login = function () {
+	de.sb.broker.WelcomeController.prototype.login = function () {
 		var inputElements = document.querySelectorAll("section.login input");
 		var credentials = {
 			userAlias: inputElements[0].value.trim(),
@@ -52,12 +52,12 @@ this.com.broker = this.com.broker || {};
 		}
 
 		var self = this;
-		com.broker.util.AJAX.invoke("/services/people/requester", "GET", {"Accept": "application/json"}, null, credentials, function (request) {
+		de.sb.util.AJAX.invoke("/services/people/requester", "GET", {"Accept": "application/json"}, null, credentials, function (request) {
 			self.displayStatus(request.status, request.statusText);
 			if (request.status === 200) {
 				self.sessionContext.user = JSON.parse(request.responseText);
 				self.sessionContext.userPassword = credentials.userPassword;
-				com.broker.APPLICATION.preferencesController.display();
+				de.sb.broker.APPLICATION.preferencesController.display();
 			}
 		});
 	}
