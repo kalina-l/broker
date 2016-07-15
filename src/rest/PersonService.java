@@ -22,6 +22,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -310,6 +311,8 @@ public class PersonService {
 				throw new ClientErrorException(409);
 			if (exception instanceof IllegalArgumentException)
 				throw new ClientErrorException(400);
+			if (exception instanceof ClientErrorException)
+				throw new ClientErrorException(403);
 			throw new InternalServerErrorException();
 		}
 	}
