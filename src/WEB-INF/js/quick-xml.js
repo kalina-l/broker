@@ -1,11 +1,12 @@
 /**
- * com.broker.util.QUICK_XML: XMl marshaler singleton.
+ * de.sb.util.QUICK_XML: XMl marshaler singleton.
  * Copyright (c) 2013-2015 Sascha Baumeister
  */
 "use strict";
 
-this.com = this.com || {};
-this.com.broker = this.com.broker || {};
+this.de = this.de || {};
+this.de.sb = this.de.sb || {};
+this.de.sb.util = this.de.sb.util || {};
 (function () {
 
 	/**
@@ -13,7 +14,7 @@ this.com.broker = this.com.broker || {};
 	 * marshaling and unmarshaling of objects into XML and vice versa, similarly
 	 * to the popular built-in JSON singleton.
 	 */
-	com.broker.util.QUICK_XML = new function () {
+	de.sb.util.QUICK_XML = new function () {
 
 		/**
 		* Recursively marshals the given object into an XML document. The result will contain

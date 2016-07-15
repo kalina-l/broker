@@ -20,7 +20,7 @@ public class PersonEntityTest extends EntityTest{
 		person.getName().setFamily("Maier");
 		person.getName().setGiven("Annika");
 		person.getAddress().setStreet("Warschauerstr.");
-		person.getAddress().setPostalCode("10429");
+		person.getAddress().setPostCode("10429");
 		person.getAddress().setCity("Berlin");
 		person.getContact().setEmail("annika.maier@gmail.com");
 		person.getContact().setPhone("00375934639");
@@ -53,9 +53,9 @@ public class PersonEntityTest extends EntityTest{
 		person.getAddress().setStreet("Warschauerstr.");
 		
 		// incorrect address - postCode
-		person.getAddress().setPostalCode("1042910429104291");
+		person.getAddress().setPostCode("1042910429104291");
 		Assert.assertEquals(1, v.validate(person).size());
-		person.getAddress().setPostalCode("10429");
+		person.getAddress().setPostCode("10429");
 		
 		// incorrect addres - city
 		person.getAddress().setCity("");
@@ -90,7 +90,7 @@ public class PersonEntityTest extends EntityTest{
 		person.getName().setFamily("Testa");
 		person.getAddress().setCity("Hamburg");
 		person.getAddress().setStreet("Testallee 13");
-		person.getAddress().setPostalCode("12345");
+		person.getAddress().setPostCode("12345");
 		person.getContact().setEmail("testa@test.com");
 		person.getContact().setPhone("012345678");
 		

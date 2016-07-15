@@ -103,7 +103,7 @@ public class AuctionService {
 			
 
 			GenericEntity<List<Auction>> wrapper = new GenericEntity<List<Auction>>(Lists.newArrayList(auctionList)) {};
-			Annotation[] filterAnnotations = new Annotation[] { new Auction.XmlSellerAsEntityFilter.Literal()};
+			Annotation[] filterAnnotations = new Annotation[] { new Auction.XmlSellerAsEntityFilter.Literal(), new Auction.XmlBidsAsEntityFilter.Literal()};
 			return Response.ok().entity(wrapper, filterAnnotations).build();
 
 		}

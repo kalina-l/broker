@@ -25,7 +25,7 @@ public class Address {
 		@NotNull
 		@Size(min=0, max=15)
 		@XmlElement
-		private String postalCode;
+		private String postCode;
 	
 		@Column(name="city", nullable = false, updatable = true, length = 63)
 		@NotNull
@@ -43,11 +43,11 @@ public class Address {
 		public void setStreet(String street) {
 			this.street = street;
 		}
-		public String getPostalCode() {
-			return postalCode;
+		public String getPostCode() {
+			return postCode;
 		}
-		public void setPostalCode(String postalCode) {
-			this.postalCode = postalCode;
+		public void setPostCode(String postCode) {
+			this.postCode = postCode;
 		}
 		public String getCity() {
 			return city;

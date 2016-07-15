@@ -1,5 +1,5 @@
 /**
- * com.broker.util:
+ * de.sb.util:
  * - AJAX singleton:	XmlHttpRequest invocation
  * - StatusAccumulator:	Chose the maximum of multiple request status replies 
  * - Semaphore:      	Asynchronous execution block synchronization
@@ -7,14 +7,15 @@
  */
 "use strict";
 
-this.com = this.de || {};
-this.com.broker = this.com.broker || {};
-this.com.broker.util = this.com.broker.util || {};
+this.de = this.de || {};
+this.de.sb = this.de.sb || {};
+this.de.sb.util = this.de.sb.util || {};
 (function () {
 
-	 /* Creates the AJAX singleton for simplified XmlHttpRequest processing.
+	/**
+	 * Creates the AJAX singleton for simplified XmlHttpRequest processing.
 	 */
-	com.broker.util.AJAX = new function () {
+	de.sb.util.AJAX = new function () {
 
 		/**
 		 * Sends an XmlHttpRequest with the given arguments. If a callback function is specified,
@@ -63,7 +64,7 @@ this.com.broker.util = this.com.broker.util || {};
 	 * Creates a new request status accumulator. the accumulator stores the
 	 * highest request status accumulated, and it's associated status text.
 	 */
-	com.broker.util.StatusAccumulator = function () {
+	de.sb.util.StatusAccumulator = function () {
 		var worstStatus = -1;
 		var worstStatusText = null;
 
@@ -121,7 +122,7 @@ this.com.broker.util = this.com.broker.util || {};
 	 * @param initialTicketCount {Number} the initial ticket count
 	 * @throws TypeError if the given ticket count is not a number
 	 */
-	com.broker.util.Semaphore = function (initialTicketCount) {
+	de.sb.util.Semaphore = function (initialTicketCount) {
 		var ticketCount = Math.floor(initialTicketCount);
 		var actionQueue = [];
 		var self = this;

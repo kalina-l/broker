@@ -1,32 +1,33 @@
+/**
+ * de.sb.broker.APPLICATION: broker application singleton.
+ * Copyright (c) 2013-2015 Sascha Baumeister
+ */
 "use strict";
 
-// Namespaces (äquivalent zu packages in java) 
-// erzeugt leeres object wenn this.com undefined ist
-this.com = this.com || {};
-this.com.broker = this.com.broker || {};
-
-//Scope
+this.de = this.de || {};
+this.de.sb = this.de.sb || {};
+this.de.sb.broker = this.de.sb.broker || {};
 (function () {
-	var SESSION_CONTEXT = new com.broker.SessionContext();
+	var SESSION_CONTEXT = new de.sb.broker.SessionContext();
 
 	/**
 	 * The broker application singleton maintaining the view controllers.
 	 */
-	com.broker.APPLICATION = {
-		welcomeController: "WelcomeController" in com.broker
-			? new com.broker.WelcomeController(SESSION_CONTEXT)
-			: new com.broker.Controller(0),
-		openAuctionsController: "OpenAuctionsController" in com.broker
-			? new com.broker.OpenAuctionsController(SESSION_CONTEXT)
-			: new com.broker.Controller(1),
-		closedAuctionsController: "ClosedAuctionsController" in com.broker
-			? new com.broker.ClosedAuctionsController(SESSION_CONTEXT)
-			: new com.broker.Controller(2),
-		preferencesController: "PreferencesController" in com.broker
-			? new com.broker.PreferencesController(SESSION_CONTEXT)
-			: new com.broker.Controller(3)
+	de.sb.broker.APPLICATION = {
+		welcomeController: "WelcomeController" in de.sb.broker
+			? new de.sb.broker.WelcomeController(SESSION_CONTEXT)
+			: new de.sb.broker.Controller(0),
+		openAuctionsController: "OpenAuctionsController" in de.sb.broker
+			? new de.sb.broker.OpenAuctionsController(SESSION_CONTEXT)
+			: new de.sb.broker.Controller(1),
+		closedAuctionsController: "ClosedAuctionsController" in de.sb.broker
+			? new de.sb.broker.ClosedAuctionsController(SESSION_CONTEXT)
+			: new de.sb.broker.Controller(2),
+		preferencesController: "PreferencesController" in de.sb.broker
+			? new de.sb.broker.PreferencesController(SESSION_CONTEXT)
+			: new de.sb.broker.Controller(3)
 	}
-	var APPLICATION = com.broker.APPLICATION;
+	var APPLICATION = de.sb.broker.APPLICATION;
 
 
 	/**

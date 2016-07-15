@@ -63,7 +63,7 @@ public class AuctionEntityTest extends EntityTest{
 		seller.getName().setFamily("Testa");
 		seller.getAddress().setCity("Hamburg");
 		seller.getAddress().setStreet("Testallee 13");
-		seller.getAddress().setPostalCode("12345");
+		seller.getAddress().setPostCode("12345");
 		seller.getContact().setEmail("testa@test.com");
 		seller.getContact().setPhone("012345678");
 				
