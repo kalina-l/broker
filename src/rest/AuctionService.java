@@ -20,9 +20,11 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -66,9 +68,9 @@ public class AuctionService {
 		// authenticate
 		final Person requester = LifeCycleProvider.authenticate(authentication);
 		if (requester == null)
-			throw new ClientErrorException(Status.UNAUTHORIZED);
+			throw new NotAuthorizedException("You need to log in.");
 		if (requester.getGroup() != ADMIN && requester.getGroup() != USER)
-			throw new ClientErrorException(FORBIDDEN);
+			throw new ForbiddenException();
 		// end authenticate
 
 		try {
@@ -104,8 +106,16 @@ public class AuctionService {
 			Annotation[] filterAnnotations = new Annotation[] { new Auction.XmlSellerAsEntityFilter.Literal(), new Auction.XmlBidsAsEntityFilter.Literal()};
 			return Response.ok().entity(wrapper, filterAnnotations).build();
 
-		} catch (final EntityNotFoundException exception) {
-			throw new ClientErrorException(404);
+		}
+		catch (Exception exception) {
+			if (exception instanceof EntityNotFoundException)
+				throw new ClientErrorException(404);
+			if (exception instanceof ForbiddenException)
+				throw new ClientErrorException(403);
+			if (exception instanceof NotAuthorizedException){
+				throw new ClientErrorException(401);
+			}
+			throw new InternalServerErrorException();
 		}
 	}
 
@@ -119,9 +129,9 @@ public class AuctionService {
 		// authenticate
 		final Person requester = LifeCycleProvider.authenticate(authentication);
 		if (requester == null)
-			throw new ClientErrorException(Status.UNAUTHORIZED);
+			throw new NotAuthorizedException("You need to log in.");
 		if (requester.getGroup() != ADMIN && requester.getGroup() != USER)
-			throw new ClientErrorException(FORBIDDEN);
+			throw new ForbiddenException();
 		// end authenticate
 
 		try {
@@ -135,8 +145,15 @@ public class AuctionService {
 			 Annotation[] filterAnnotations = new Annotation[] { new Auction.XmlSellerAsReferenceFilter.Literal()}; 
 			return Response.ok().entity(auction, filterAnnotations).build();
 
-		} catch (final EntityNotFoundException exception) {
-			throw new ClientErrorException(404);
+		} catch (Exception exception) {
+			if (exception instanceof EntityNotFoundException)
+				throw new ClientErrorException(404);
+			if (exception instanceof ForbiddenException)
+				throw new ClientErrorException(403);
+			if (exception instanceof NotAuthorizedException){
+				throw new ClientErrorException(401);
+			}
+			throw new InternalServerErrorException();
 		}
 	}
 
@@ -151,9 +168,9 @@ public class AuctionService {
 		// authenticate
 		final Person requester = LifeCycleProvider.authenticate(authentication);
 		if (requester == null)
-			throw new ClientErrorException(Status.UNAUTHORIZED);
+			throw new NotAuthorizedException("You need to log in.");
 		if (requester.getGroup() != ADMIN && requester.getGroup() != USER)
-			throw new ClientErrorException(FORBIDDEN);
+			throw new ForbiddenException();
 		// end authenticate
 
 		try {
@@ -179,6 +196,11 @@ public class AuctionService {
 				throw new ClientErrorException(404);
 			if (exception instanceof IllegalArgumentException)
 				throw new ClientErrorException(400);
+			if (exception instanceof ForbiddenException)
+				throw new ClientErrorException(403);
+			if (exception instanceof NotAuthorizedException){
+				throw new ClientErrorException(401);
+			}
 			throw new InternalServerErrorException();
 		}
 	}
@@ -193,9 +215,9 @@ public class AuctionService {
 		// Logged in?
 		final Person requester = LifeCycleProvider.authenticate(authentication);
 		if (requester == null)
-			throw new ClientErrorException(Status.UNAUTHORIZED);
+			throw new NotAuthorizedException("You need to log in.");
 		if (requester.getGroup() != ADMIN && requester.getGroup() != USER)
-			throw new ClientErrorException(FORBIDDEN);
+			throw new ForbiddenException();
 		
 		// end authenticate
 
@@ -247,6 +269,11 @@ public class AuctionService {
 				throw new ClientErrorException(400);
 			if (exception instanceof ClientErrorException)
 				throw new ClientErrorException(403);
+			if (exception instanceof ForbiddenException)
+				throw new ClientErrorException(403);
+			if (exception instanceof NotAuthorizedException){
+				throw new ClientErrorException(401);
+			}
 			throw new InternalServerErrorException();
 		}
 
@@ -261,9 +288,9 @@ public class AuctionService {
 		// authenticate
 		final Person requester = LifeCycleProvider.authenticate(authentication);
 		if (requester == null)
-			throw new ClientErrorException(Status.UNAUTHORIZED);
+			throw new NotAuthorizedException("You need to log in.");
 		if (requester.getGroup() != ADMIN && requester.getGroup() != USER)
-			throw new ClientErrorException(FORBIDDEN);
+			throw new ForbiddenException();
 		// end authenticate
 
 		Bid bid = null;
@@ -310,6 +337,11 @@ public class AuctionService {
 				throw new ClientErrorException(409);
 			if (exception instanceof IllegalArgumentException)
 				throw new ClientErrorException(400);
+			if (exception instanceof ForbiddenException)
+				throw new ClientErrorException(403);
+			if (exception instanceof NotAuthorizedException){
+				throw new ClientErrorException(401);
+			}
 			throw new InternalServerErrorException();
 		}
 
