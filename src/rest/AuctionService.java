@@ -4,6 +4,7 @@ import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static model.Group.ADMIN;
 import static model.Group.USER;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -52,7 +53,7 @@ public class AuctionService {
 	@GET
 	@Path("/auctions")
 	@Produces({ "application/xml", "application/json" })
-//	@Auction.XmlSellerAsEntityFilter
+	@Auction.XmlSellerAsEntityFilter
 	public Response getAuctions(@HeaderParam("Authorization") final String authentication,
 			@QueryParam("resultLength") int resultLength, @QueryParam("resultOffset") int resultOffset,
 			@QueryParam("creationTimeLowerLimit") Long creationTimeLowerLimit,
@@ -97,10 +98,11 @@ public class AuctionService {
 			if (idList.isEmpty()) {
 				throw new EntityNotFoundException();
 			}
+			
 
-			GenericEntity<List<Auction>> entity = new GenericEntity<List<Auction>>(Lists.newArrayList(auctionList)) {
-			};
-			return Response.ok(entity).build();
+			GenericEntity<List<Auction>> wrapper = new GenericEntity<List<Auction>>(Lists.newArrayList(auctionList)) {};
+			Annotation[] filterAnnotations = new Annotation[] { new Auction.XmlSellerAsEntityFilter.Literal()};
+			return Response.ok().entity(wrapper, filterAnnotations).build();
 
 		} catch (final EntityNotFoundException exception) {
 			throw new ClientErrorException(404);
@@ -110,8 +112,8 @@ public class AuctionService {
 	@GET
 	@Path("/auctions/{identity}")
 	@Produces({ "application/xml", "application/json" })
-//	@Auction.XmlSellerAsReferenceFilter
-	public Auction getAuctionByID(@HeaderParam("Authorization") final String authentication,
+	@Auction.XmlSellerAsReferenceFilter
+	public Response getAuctionByID(@HeaderParam("Authorization") final String authentication,
 			@NotNull @Min(1) @PathParam("identity") long identity) {
 
 		// authenticate
@@ -129,8 +131,9 @@ public class AuctionService {
 
 			if (auction == null)
 				throw new EntityNotFoundException();
-
-			return auction;
+			
+			 Annotation[] filterAnnotations = new Annotation[] { new Auction.XmlSellerAsReferenceFilter.Literal()}; 
+			return Response.ok().entity(auction, filterAnnotations).build();
 
 		} catch (final EntityNotFoundException exception) {
 			throw new ClientErrorException(404);
@@ -140,8 +143,8 @@ public class AuctionService {
 	@GET
 	@Path("/auctions/{identity}/bids")
 	@Produces({ "application/xml", "application/json" })
-//	@Bid.XmlBidderAsReferenceFilter
-//	@Bid.XmlAuctionAsReferenceFilter
+	@Bid.XmlBidderAsReferenceFilter
+	@Bid.XmlAuctionAsReferenceFilter
 	public Response getBidsByAuctionID(@HeaderParam("Authorization") final String authentication,
 			@NotNull @Min(1) @PathParam("identity") long identity) {
 
@@ -166,9 +169,10 @@ public class AuctionService {
 				throw new EntityNotFoundException();
 			}
 
-			GenericEntity<List<Bid>> entity = new GenericEntity<List<Bid>>(Lists.newArrayList(requesterBids)) {
-			};
-			return Response.ok(entity).build();
+			
+			GenericEntity<List<Bid>> wrapper = new GenericEntity<List<Bid>>(Lists.newArrayList(requesterBids)) {};
+			Annotation[] filterAnnotations = new Annotation[] { new Bid.XmlBidderAsReferenceFilter.Literal(), new Bid.XmlAuctionAsReferenceFilter.Literal()};
+			return Response.ok().entity(wrapper, filterAnnotations).build();
 
 		} catch (Exception exception) {
 			if (exception instanceof EntityNotFoundException)

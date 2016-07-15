@@ -4,6 +4,7 @@ import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static model.Group.ADMIN;
 import static model.Group.USER;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -22,7 +23,6 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -202,8 +202,8 @@ public class PersonService {
 	@GET
 	@Path("/people/{identity}/bids")
 	@Produces({ "application/xml", "application/json" })
-//	@Bid.XmlBidderAsReferenceFilter
-//	@Bid.XmlAuctionAsReferenceFilter
+	@Bid.XmlBidderAsReferenceFilter
+	@Bid.XmlAuctionAsReferenceFilter
 	public Response getClosedBidsByPersonID(@HeaderParam("Authorization") final String authentication,
 			@NotNull @Min(1) @PathParam("identity") long identity) {
 
@@ -228,9 +228,13 @@ public class PersonService {
 				throw new EntityNotFoundException();
 			}
 
-			GenericEntity<List<Bid>> entity = new GenericEntity<List<Bid>>(Lists.newArrayList(closedBids)) {
-			};
-			return Response.ok(entity).build();
+			
+			
+		
+			
+			GenericEntity<List<Bid>> wrapper = new GenericEntity<List<Bid>>(Lists.newArrayList(closedBids)) {
+			};Annotation[] filterAnnotations = new Annotation[] { new Bid.XmlBidderAsReferenceFilter.Literal(), new Bid.XmlAuctionAsReferenceFilter.Literal()};
+			return Response.ok().entity(wrapper, filterAnnotations).build();
 
 		} catch (Exception exception) {
 			if (exception instanceof EntityNotFoundException)

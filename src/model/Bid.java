@@ -10,6 +10,15 @@ import javax.persistence.Table;
 import javax.validation.constraints.Min;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import javax.enterprise.util.AnnotationLiteral;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import org.glassfish.jersey.message.filtering.EntityFiltering;
 
 import de.sb.java.validation.Inequal;
 /**
@@ -59,44 +68,74 @@ public class Bid extends BaseEntity{
 		this.price = price;
 	}
 	
-	//@XmlElement
-//	@XmlAuctionAsEntityFilter
+	@XmlElement
+	@XmlAuctionAsEntityFilter
 	public Auction getAuction() {
 		return auction;
 	}
 	
-//	@XmlElement
-//	@XmlAuctionAsReferenceFilter
+	@XmlElement
+	@XmlAuctionAsReferenceFilter
 	public long getAuctionReference() {
 		return this.auction==null ? 0 : this.auction.getIdentity();
 	}
 	
-//	@XmlElement
-//	@XmlBidderAsEntityFilter
+	@XmlElement
+	@XmlBidderAsEntityFilter
 	public Person getBidder() {
 		return bidder;
 	}
 
-//	@XmlElement
-//	@XmlBidderAsReferenceFilter
+	@XmlElement
+	@XmlBidderAsReferenceFilter
 	public long getBidderReference() {
 		return this.bidder==null ? 0 : this.bidder.getIdentity();
 
 	}
-//	
-//	
-//	@EntityFiltering
-//	public @interface XmlAuctionAsEntityFilter { }
-//	
-//	@EntityFiltering
-//	public @interface XmlAuctionAsReferenceFilter { }
-//	
-//	@EntityFiltering
-//	public @interface XmlBidderAsEntityFilter { }
-//	
-//	@EntityFiltering
-//	public @interface XmlBidderAsReferenceFilter { }
-//	
+	
+	/**
+	 * Filter annotation for associated bidders marshaled as entities.
+	 */
+	@Target({TYPE, METHOD, FIELD})
+	@Retention(RUNTIME)
+	@EntityFiltering
+	@SuppressWarnings("all")
+	static public @interface XmlBidderAsEntityFilter {
+		static final class Literal extends AnnotationLiteral<XmlBidderAsEntityFilter> implements XmlBidderAsEntityFilter {}
+	}
+
+	/**
+	 * Filter annotation for associated bidders marshaled as references.
+	 */
+	@Target({TYPE, METHOD, FIELD})
+	@Retention(RUNTIME)
+	@EntityFiltering
+	@SuppressWarnings("all")
+	static public @interface XmlBidderAsReferenceFilter {
+		static final class Literal extends AnnotationLiteral<XmlBidderAsReferenceFilter> implements XmlBidderAsReferenceFilter {};
+	}
+
+	/**
+	 * Filter annotation for associated auctions marshaled as entities.
+	 */
+	@Target({TYPE, METHOD, FIELD})
+	@Retention(RUNTIME)
+	@EntityFiltering
+	@SuppressWarnings("all")
+	static public @interface XmlAuctionAsEntityFilter {
+		static final class Literal extends AnnotationLiteral<XmlAuctionAsEntityFilter> implements XmlAuctionAsEntityFilter {}
+	}
+
+	/**
+	 * Filter annotation for associated auctions marshaled as references.
+	 */
+	@Target({TYPE, METHOD, FIELD})
+	@Retention(RUNTIME)
+	@EntityFiltering
+	@SuppressWarnings("all")
+	static public @interface XmlAuctionAsReferenceFilter {
+		static final class Literal extends AnnotationLiteral<XmlAuctionAsReferenceFilter> implements XmlAuctionAsReferenceFilter {}
+	}
 	
 	
 }
