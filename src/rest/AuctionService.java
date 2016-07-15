@@ -300,8 +300,8 @@ public class AuctionService {
 			if (exception instanceof EntityNotFoundException)
 				throw new ClientErrorException(404);
 			if (exception instanceof ConstraintViolationException)
-				System.out.println(exception.getMessage());
-				//throw new ClientErrorException(401);
+				//auction.askingprice should be smaller than bit price
+				throw new ClientErrorException(401);
 			if (exception instanceof RollbackException)
 				throw new ClientErrorException(409);
 			if (exception instanceof IllegalArgumentException)

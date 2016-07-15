@@ -11,8 +11,6 @@ import javax.validation.constraints.Min;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.glassfish.jersey.message.filtering.EntityFiltering;
-
 import de.sb.java.validation.Inequal;
 /**
  * A bid of per Person per Auction
