@@ -52,7 +52,7 @@ public class AuctionService {
 	@GET
 	@Path("/auctions")
 	@Produces({ "application/xml", "application/json" })
-	@Auction.XmlSellerAsEntityFilter
+//	@Auction.XmlSellerAsEntityFilter
 	public Response getAuctions(@HeaderParam("Authorization") final String authentication,
 			@QueryParam("resultLength") int resultLength, @QueryParam("resultOffset") int resultOffset,
 			@QueryParam("creationTimeLowerLimit") Long creationTimeLowerLimit,
@@ -110,7 +110,7 @@ public class AuctionService {
 	@GET
 	@Path("/auctions/{identity}")
 	@Produces({ "application/xml", "application/json" })
-	@Auction.XmlSellerAsReferenceFilter
+//	@Auction.XmlSellerAsReferenceFilter
 	public Auction getAuctionByID(@HeaderParam("Authorization") final String authentication,
 			@NotNull @Min(1) @PathParam("identity") long identity) {
 
@@ -140,8 +140,8 @@ public class AuctionService {
 	@GET
 	@Path("/auctions/{identity}/bids")
 	@Produces({ "application/xml", "application/json" })
-	@Bid.XmlBidderAsReferenceFilter
-	@Bid.XmlAuctionAsReferenceFilter
+//	@Bid.XmlBidderAsReferenceFilter
+//	@Bid.XmlAuctionAsReferenceFilter
 	public Response getBidsByAuctionID(@HeaderParam("Authorization") final String authentication,
 			@NotNull @Min(1) @PathParam("identity") long identity) {
 
@@ -254,15 +254,15 @@ public class AuctionService {
 			throw new ClientErrorException(FORBIDDEN);
 		// end authenticate
 
+		Bid bid = null;
 		try {
 
 			EntityManager em = LifeCycleProvider.brokerManager();
-
+			Auction auction = em.find(Auction.class, identity);
 			boolean createmode = template.getIdentity() == 0;
-			Auction auction = null;
-			auction = em.find(Auction.class, identity);
 
-			Bid bid = createmode ? new Bid(auction, requester) : em.find(Bid.class, template.getIdentity());
+
+			bid = createmode ? new Bid(auction, requester) : em.find(Bid.class, template.getIdentity());
 			bid.setPrice(template.getPrice());
 			
 
@@ -292,7 +292,8 @@ public class AuctionService {
 			if (exception instanceof EntityNotFoundException)
 				throw new ClientErrorException(404);
 			if (exception instanceof ConstraintViolationException)
-				throw new ClientErrorException(401);
+				System.out.println(exception.getMessage());
+				//throw new ClientErrorException(401);
 			if (exception instanceof RollbackException)
 				throw new ClientErrorException(409);
 			if (exception instanceof IllegalArgumentException)

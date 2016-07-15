@@ -8,7 +8,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.validation.constraints.Min;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -21,7 +20,7 @@ import de.sb.java.validation.Inequal;
  *
  */
 @Entity
-@XmlRootElement // TODO muss man wegmachen? nur baseentity? zirkul�re probleme bei anderen 
+@XmlRootElement 
 @Table(schema = "broker", name = "bid")
 @PrimaryKeyJoinColumn(name = "bidIdentity")
 @Inequal(leftAccessPath = { "price" }, rightAccessPath = { "auction", "askingPrice" } , operator = Inequal.Operator.GREATER_EQUAL )
@@ -32,7 +31,7 @@ public class Bid extends BaseEntity{
 
 	@Column(name="price", nullable = false, updatable = true)
 	@Min(0)
-	@XmlAttribute
+	@XmlElement
 	private long price;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -86,20 +85,20 @@ public class Bid extends BaseEntity{
 		return this.bidder==null ? 0 : this.bidder.getIdentity();
 
 	}
-	
-	
-	@EntityFiltering
-	public @interface XmlAuctionAsEntityFilter { }
-	
-	@EntityFiltering
-	public @interface XmlAuctionAsReferenceFilter { }
-	
-	@EntityFiltering
-	public @interface XmlBidderAsEntityFilter { }
-	
-	@EntityFiltering
-	public @interface XmlBidderAsReferenceFilter { }
-	
+//	
+//	
+//	@EntityFiltering
+//	public @interface XmlAuctionAsEntityFilter { }
+//	
+//	@EntityFiltering
+//	public @interface XmlAuctionAsReferenceFilter { }
+//	
+//	@EntityFiltering
+//	public @interface XmlBidderAsEntityFilter { }
+//	
+//	@EntityFiltering
+//	public @interface XmlBidderAsReferenceFilter { }
+//	
 	
 	
 }

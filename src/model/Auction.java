@@ -168,14 +168,14 @@ public class Auction extends BaseEntity {
 	}
 
 	
-	@EntityFiltering
-	public @interface XmlSellerAsEntityFilter { }
-	
-	@EntityFiltering
-	public @interface XmlSellerAsReferenceFilter { }
-	
-	@EntityFiltering
-	public @interface XmlBidsAsEntityFilter { }
-	
+//	@EntityFiltering
+//	public @interface XmlSellerAsEntityFilter { }
+//	
+//	@EntityFiltering
+//	public @interface XmlSellerAsReferenceFilter { }
+//	
+//	@EntityFiltering
+//	public @interface XmlBidsAsEntityFilter { }
+//	
 	
 }
