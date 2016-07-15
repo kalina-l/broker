@@ -53,7 +53,7 @@ public class PersonService {
 	@Path("/people/requester")
 	@Produces({ "application/xml", "application/json" })
 	public Response getRequester(@HeaderParam("Authorization") final String authentication) {
-		
+
 		// authenticate
 		final Person requester = LifeCycleProvider.authenticate(authentication);
 		if (requester == null)
@@ -61,7 +61,7 @@ public class PersonService {
 		if (requester.getGroup() != ADMIN && requester.getGroup() != USER)
 			throw new ClientErrorException(FORBIDDEN);
 		// end authenticate
-	
+
 		return Response.ok(requester).build();
 	}
 
@@ -77,7 +77,7 @@ public class PersonService {
 			@QueryParam("givenName") String givenName, @QueryParam("familyName") String familyName,
 			@QueryParam("street") String street, @QueryParam("postalCode") String postalCode,
 			@QueryParam("city") String city, @QueryParam("phone") String phone, @QueryParam("email") String email) {
-	
+
 		// authenticate
 		final Person requester = LifeCycleProvider.authenticate(authentication);
 		if (requester == null)
@@ -126,7 +126,7 @@ public class PersonService {
 	@Produces({ "application/xml", "application/json" })
 	public Person getPersonByID(@HeaderParam("Authorization") final String authentication,
 			@NotNull @Min(1) @PathParam("identity") long identity) {
-	
+
 		// authenticate
 		final Person requester = LifeCycleProvider.authenticate(authentication);
 		if (requester == null)
@@ -159,7 +159,7 @@ public class PersonService {
 	@Produces({ "application/xml", "application/json" })
 	public Response getAuctionsByPersonID(@HeaderParam("Authorization") final String authentication,
 			@NotNull @Min(1) @PathParam("identity") long identity) {
-		
+
 		// authenticate
 		final Person requester = LifeCycleProvider.authenticate(authentication);
 		if (requester == null)
@@ -205,7 +205,7 @@ public class PersonService {
 	@Bid.XmlAuctionAsReferenceFilter
 	public Response getClosedBidsByPersonID(@HeaderParam("Authorization") final String authentication,
 			@NotNull @Min(1) @PathParam("identity") long identity) {
-		
+
 		// authenticate
 		final Person requester = LifeCycleProvider.authenticate(authentication);
 		if (requester == null)
@@ -213,7 +213,7 @@ public class PersonService {
 		if (requester.getGroup() != ADMIN && requester.getGroup() != USER)
 			throw new ClientErrorException(FORBIDDEN);
 		// end authenticate
-		
+
 		try {
 			EntityManager em = LifeCycleProvider.brokerManager();
 			Person person = em.find(Person.class, identity);
@@ -245,12 +245,20 @@ public class PersonService {
 	@Consumes({ "application/xml", "application/json" })
 	public Response alterPerson(@HeaderParam("Authorization") final String authentication,
 			@NotNull @Valid Person template) {
-		// authenticate
+
+		// Authentification
+		// Logged in?
 		final Person requester = LifeCycleProvider.authenticate(authentication);
 		if (requester == null)
 			throw new ClientErrorException(Status.UNAUTHORIZED);
 		if (requester.getGroup() != ADMIN && requester.getGroup() != USER)
 			throw new ClientErrorException(FORBIDDEN);
+
+		// User changing data of others?
+		boolean selfAltering = requester.getIdentity() == template.getIdentity();
+		if (requester.getGroup() == USER && !selfAltering)
+			throw new ClientErrorException(FORBIDDEN);
+
 		// end authenticate
 		try {
 
@@ -259,8 +267,16 @@ public class PersonService {
 			boolean createmode = template.getIdentity() == 0;
 			Person person = createmode ? new Person() : em.find(Person.class, template.getIdentity());
 
+			if (person == null) {
+				throw new EntityNotFoundException();
+			}
+
 			person.setAlias(template.getAlias());
-			person.setGroup(template.getGroup());
+			if (requester.getGroup() == USER && template.getGroup() == ADMIN) {
+				throw new ClientErrorException(FORBIDDEN);
+			} else {
+				person.setGroup(template.getGroup());
+			}
 			person.getName().setFamily(template.getName().getFamily());
 			person.getName().setGiven(template.getName().getGiven());
 			person.getAddress().setStreet(template.getAddress().getStreet());
