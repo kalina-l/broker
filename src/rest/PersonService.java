@@ -20,9 +20,11 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -59,9 +61,9 @@ public class PersonService {
 		// authenticate
 		final Person requester = LifeCycleProvider.authenticate(authentication);
 		if (requester == null)
-			throw new ClientErrorException(Status.UNAUTHORIZED);
+			throw new NotAuthorizedException("You need to log in.");
 		if (requester.getGroup() != ADMIN && requester.getGroup() != USER)
-			throw new ClientErrorException(FORBIDDEN);
+			throw new ForbiddenException();
 		// end authenticate
 
 		return Response.ok(requester).build();
@@ -83,9 +85,9 @@ public class PersonService {
 		// authenticate
 		final Person requester = LifeCycleProvider.authenticate(authentication);
 		if (requester == null)
-			throw new ClientErrorException(Status.UNAUTHORIZED);
+			throw new NotAuthorizedException("You need to log in.");
 		if (requester.getGroup() != ADMIN && requester.getGroup() != USER)
-			throw new ClientErrorException(FORBIDDEN);
+			throw new ForbiddenException();
 		// end authenticate
 
 		try {
@@ -118,8 +120,14 @@ public class PersonService {
 			};
 			return Response.ok(entity).build();
 
-		} catch (final EntityNotFoundException exception) {
-			throw new ClientErrorException(404);
+		} catch (Exception exception) {
+			if (exception instanceof EntityNotFoundException)
+				throw new ClientErrorException(404);
+			if (exception instanceof ForbiddenException)
+				throw new ClientErrorException(403);
+			if (exception instanceof NotAuthorizedException)
+				throw new ClientErrorException(401);
+			throw new InternalServerErrorException();
 		}
 	}
 
@@ -132,9 +140,9 @@ public class PersonService {
 		// authenticate
 		final Person requester = LifeCycleProvider.authenticate(authentication);
 		if (requester == null)
-			throw new ClientErrorException(Status.UNAUTHORIZED);
+			throw new NotAuthorizedException("You need to log in.");
 		if (requester.getGroup() != ADMIN && requester.getGroup() != USER)
-			throw new ClientErrorException(FORBIDDEN);
+			throw new ForbiddenException();
 		// end authenticate
 
 		try {
@@ -152,6 +160,10 @@ public class PersonService {
 				throw new ClientErrorException(404);
 			if (exception instanceof IllegalArgumentException)
 				throw new ClientErrorException(400);
+			if (exception instanceof ForbiddenException)
+				throw new ClientErrorException(403);
+			if (exception instanceof NotAuthorizedException)
+				throw new ClientErrorException(401);
 			throw new InternalServerErrorException();
 		}
 	}
@@ -166,9 +178,9 @@ public class PersonService {
 		// authenticate
 		final Person requester = LifeCycleProvider.authenticate(authentication);
 		if (requester == null)
-			throw new ClientErrorException(Status.UNAUTHORIZED);
+			throw new NotAuthorizedException("You need to log in.");
 		if (requester.getGroup() != ADMIN && requester.getGroup() != USER)
-			throw new ClientErrorException(FORBIDDEN);
+			throw new ForbiddenException();
 		// end authenticate
 
 		try {
@@ -199,6 +211,10 @@ public class PersonService {
 				throw new ClientErrorException(404);
 			if (exception instanceof IllegalArgumentException)
 				throw new ClientErrorException(400);
+			if (exception instanceof ForbiddenException)
+				throw new ClientErrorException(403);
+			if (exception instanceof NotAuthorizedException)
+				throw new ClientErrorException(401);
 			throw new InternalServerErrorException();
 		}
 	}
@@ -214,9 +230,9 @@ public class PersonService {
 		// authenticate
 		final Person requester = LifeCycleProvider.authenticate(authentication);
 		if (requester == null)
-			throw new ClientErrorException(Status.UNAUTHORIZED);
+			throw new NotAuthorizedException("You need to log in.");
 		if (requester.getGroup() != ADMIN && requester.getGroup() != USER)
-			throw new ClientErrorException(FORBIDDEN);
+			throw new ForbiddenException();
 		// end authenticate
 
 		try {
@@ -232,10 +248,6 @@ public class PersonService {
 				throw new EntityNotFoundException();
 			}
 
-			
-			
-		
-			
 			GenericEntity<List<Bid>> wrapper = new GenericEntity<List<Bid>>(Lists.newArrayList(closedBids)) {
 			};Annotation[] filterAnnotations = new Annotation[] { new Bid.XmlBidderAsReferenceFilter.Literal(), new Bid.XmlAuctionAsReferenceFilter.Literal()};
 			return Response.ok().entity(wrapper, filterAnnotations).build();
@@ -245,6 +257,10 @@ public class PersonService {
 				throw new ClientErrorException(404);
 			if (exception instanceof IllegalArgumentException)
 				throw new ClientErrorException(400);
+			if (exception instanceof ForbiddenException)
+				throw new ClientErrorException(403);
+			if (exception instanceof NotAuthorizedException)
+				throw new ClientErrorException(401);
 			throw new InternalServerErrorException();
 		}
 	}
@@ -259,9 +275,9 @@ public class PersonService {
 		// Logged in?
 		final Person requester = LifeCycleProvider.authenticate(authentication);
 		if (requester == null)
-			throw new ClientErrorException(Status.UNAUTHORIZED);
+			throw new NotAuthorizedException("You need to log in.");
 		if (requester.getGroup() != ADMIN && requester.getGroup() != USER)
-			throw new ClientErrorException(FORBIDDEN);
+			throw new ForbiddenException();
 
 		// User changing data of others?
 		boolean selfAltering = requester.getIdentity() == template.getIdentity();
@@ -308,8 +324,7 @@ public class PersonService {
 			} // End Commit -------------------------
 
 			return Response.ok(person.getIdentity()).build();
-
-			// TODO Errorhandling
+			
 		} catch (Exception exception) {
 			if (exception instanceof EntityNotFoundException)
 				throw new ClientErrorException(404);
@@ -321,6 +336,10 @@ public class PersonService {
 				throw new ClientErrorException(400);
 			if (exception instanceof ClientErrorException)
 				throw new ClientErrorException(403);
+			if (exception instanceof ForbiddenException)
+				throw new ClientErrorException(403);
+			if (exception instanceof NotAuthorizedException)
+				throw new ClientErrorException(401);
 			throw new InternalServerErrorException();
 		}
 	}
