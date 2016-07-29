@@ -57,6 +57,8 @@ public class AuctionService {
 	@Produces({ "application/xml", "application/json" })
 	@Auction.XmlSellerAsEntityFilter
 	public Response getAuctions(@HeaderParam("Authorization") final String authentication,
+			@QueryParam("closed") Boolean closed,
+			@QueryParam("sealed") Boolean sealed,
 			@QueryParam("resultLength") int resultLength, @QueryParam("resultOffset") int resultOffset,
 			@QueryParam("creationTimeLowerLimit") Long creationTimeLowerLimit,
 			@QueryParam("creationTimeUpperLimit") Long creationTimeUpperLimit,
@@ -89,9 +91,13 @@ public class AuctionService {
 
 			List<Long> idList = query.getResultList();
 			List<Auction> auctionList = new ArrayList<>();
+		
 			for (Long id : idList) {
 				Auction temp = em.find(Auction.class, id);
-				if (temp != null)
+				if(closed != null){
+					if (temp != null && temp.isClosed() == closed )
+						auctionList.add(temp);
+				} else if (temp != null)
 					auctionList.add(temp);
 			}
 
@@ -200,7 +206,7 @@ public class AuctionService {
 	@Path("/auctions")
 	@Consumes({ "application/xml", "application/json" })
 	public Response alterAuction(@HeaderParam("Authorization") final String authentication,
-			@NotNull @Valid Auction template, @QueryParam("sellerID") @NotNull Long sellerID) {
+			@NotNull @Valid Auction template, @QueryParam("sellerID") Long sellerID) {
 
 		// Authentification
 		// Logged in?

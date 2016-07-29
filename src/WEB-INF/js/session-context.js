@@ -21,6 +21,8 @@ this.de.sb.broker = this.de.sb.broker || {};
 			writable: true,
 			value: null
 		});
+		
+
 
 		Object.defineProperty(this, "userAlias", {
 			enumerable: true,

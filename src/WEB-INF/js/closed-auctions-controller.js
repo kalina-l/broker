@@ -44,7 +44,6 @@ this.de.sb.broker = this.de.sb.broker || {};
 		var self = this;
 
 		var resource = "/services/people/" + this.sessionContext.user.identity + "/auctions?seller=true&closed=true";
-//		var resource = "/services/people/" + this.sessionContext.user.identity + "/auctions";
 		de.sb.util.AJAX.invoke(resource, "GET", {"Accept": "application/json"}, null, this.sessionContext, function (request) {
 			if (request.status === 200) {
 				var auctions = JSON.parse(request.responseText);
@@ -53,8 +52,8 @@ this.de.sb.broker = this.de.sb.broker || {};
 			statusAccumulator.offer(request.status, request.statusText);
 			indebtedSemaphore.release();
 		});
+
 		var resource = "/services/people/" + this.sessionContext.user.identity + "/auctions?seller=false&closed=true";
-//		var resource = "/services/people/" + this.sessionContext.user.identity + "/auctions";
 		de.sb.util.AJAX.invoke(resource, "GET", {"Accept": "application/json"}, null, this.sessionContext, function (request) {
 			if (request.status === 200) {
 				var auctions = JSON.parse(request.responseText);
@@ -128,7 +127,7 @@ this.de.sb.broker = this.de.sb.broker || {};
 			var activeElements = rowElement.querySelectorAll("output");
 			activeElements[0].value = auction.seller.alias;
 			activeElements[0].title = createDisplayTitle(auction.seller);
-			activeElements[1].value = XmlAuctionAsReferenceFilter.bidder.alias;
+			activeElements[1].value = maxBid.bidder.alias;
 			activeElements[1].title = createDisplayTitle(maxBid.bidder);
 			activeElements[2].value = new Date(auction.creationTimestamp).toLocaleString(TIMESTAMP_OPTIONS);
 			activeElements[3].value = new Date(auction.closureTimestamp).toLocaleString(TIMESTAMP_OPTIONS);
@@ -169,6 +168,7 @@ this.de.sb.broker = this.de.sb.broker || {};
 		}
 		return null;
 	}
+
 
 	/**
 	 * Creates a display title for the given person.

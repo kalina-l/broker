@@ -159,42 +159,71 @@ public class PersonService {
 	@Produces({ "application/xml", "application/json" })
 	@XmlBidsAsEntityFilter
 	public Response getAuctionsByPersonID(@HeaderParam("Authorization") final String authentication,
-			@NotNull @Min(1) @PathParam("identity") long identity) {
+			@NotNull @Min(1) @PathParam("identity") long identity,
+			@QueryParam("closed") Boolean closed,
+			@QueryParam("seller") Boolean seller) {
 
 		// authenticate
 		final Person requester = LifeCycleProvider.authenticate(authentication);
-		if (requester == null)
-			throw new NotAuthorizedException("You need to log in.");
-		if (requester.getGroup() != ADMIN && requester.getGroup() != USER)
-			throw new ForbiddenException();
+		if (requester == null) throw new ClientErrorException(401);
+		if (requester.getGroup() != ADMIN && requester.getGroup() != USER)throw new ClientErrorException(403);
 		// end authenticate
 
+		
+		
 		try {
 			EntityManager em = LifeCycleProvider.brokerManager();
 
 			final Person person = em.find(Person.class, identity);
-			Set<Auction> allAuctions = new HashSet<Auction>();
-			allAuctions.addAll(person.getAuctions());
-
-			Set<Bid> bids = person.getBids();
-			// Get auctions with bidder reference
-			for (Bid b : bids) {
-				allAuctions.add(b.getAuction());
-			}
-
-			if (bids.isEmpty()) {
-				throw new EntityNotFoundException();
-			}
-
+			Set<Auction> allAuctions = new HashSet<Auction>(person.getAuctions());
+			Set<Bid> bids = new HashSet<Bid>(person.getBids());
+			if(bids.isEmpty()) throw new ClientErrorException(404);
+			
 			GenericEntity<List<Auction>> wrapper = new GenericEntity<List<Auction>>(Lists.newArrayList(allAuctions)) {
 			};
-			Annotation[] filterAnnotations = new Annotation[] { new Auction.XmlSellerAsEntityFilter.Literal(), new Auction.XmlBidsAsEntityFilter.Literal()};
-			return Response.ok().entity(wrapper, filterAnnotations).build();
+			Annotation[] filterAnnotations = new Annotation[] {};
+			
+			if (closed != null) {
+				for (Auction auction : allAuctions) {
+					if (auction.isClosed() == closed) {
+						allAuctions.add(auction);
+					}
+				}
+				for (Bid bid : bids) {
+					if (bid.getAuction().isClosed() == closed) {
+						allAuctions.add(bid.getAuction());
+					}
+				}
+				if (closed) {
+					filterAnnotations = new Annotation[] { new Auction.XmlSellerAsReferenceFilter.Literal(),
+							new Auction.XmlBidsAsEntityFilter.Literal(), new Bid.XmlBidderAsEntityFilter.Literal(),
+							new Bid.XmlAuctionAsReferenceFilter.Literal() };
+				}
+			} else if (seller != null) {
+				if (seller) {
+					for (Auction auction : allAuctions) {
+						if (auction.getSeller().getIdentity() == person.getIdentity()) {
+							allAuctions.add(auction);
+						}
+					}
+					filterAnnotations = new Annotation[] { new Auction.XmlSellerAsReferenceFilter.Literal()};
+				} else {
+					for (Bid bid : bids) {
+						allAuctions.add(bid.getAuction());
+					}
+					filterAnnotations = new Annotation[] { new Auction.XmlSellerAsEntityFilter.Literal()};
+				}
+			} else {
+				for (Bid bid : bids) {
+					allAuctions.add(bid.getAuction());
+				}
+			}
+
+
+				return Response.ok().entity(wrapper, filterAnnotations).build();
 		
 
 		} catch (Exception exception) {
-			if (exception instanceof EntityNotFoundException)
-				throw new ClientErrorException(404);
 			if (exception instanceof IllegalArgumentException)
 				throw new ClientErrorException(400);
 			throw new InternalServerErrorException();
@@ -244,7 +273,7 @@ public class PersonService {
 	@PUT
 	@Path("/people")
 	@Consumes({ "application/xml", "application/json" })
-	public Response alterPerson(@HeaderParam("Authorization") final String authentication,
+	public Response alterPerson(@HeaderParam("Authorization") final String authentication, 
 			@NotNull @Valid Person template) {
 
 		// authenticate
