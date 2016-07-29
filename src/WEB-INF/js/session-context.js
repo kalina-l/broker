@@ -22,7 +22,13 @@ this.de.sb.broker = this.de.sb.broker || {};
 			value: null
 		});
 		
-
+		Object.defineProperty(this, "auction", {
+			enumerable: true,
+			configurable: false,
+			writable: true,
+			value: null
+		});
+		
 
 		Object.defineProperty(this, "userAlias", {
 			enumerable: true,
