@@ -26,8 +26,7 @@ import de.sb.java.validation.Inequal;
  * @author Master Programming Group 6
  *
  */
-@Entity
-@XmlRootElement 
+@Entity 
 @Table(schema = "broker", name = "bid")
 @PrimaryKeyJoinColumn(name = "bidIdentity")
 @Inequal(leftAccessPath = { "price" }, rightAccessPath = { "auction", "askingPrice" } , operator = Inequal.Operator.GREATER_EQUAL )

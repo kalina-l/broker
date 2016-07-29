@@ -67,10 +67,8 @@ public class AuctionService {
 
 		// authenticate
 		final Person requester = LifeCycleProvider.authenticate(authentication);
-		if (requester == null)
-			throw new NotAuthorizedException("You need to log in.");
-		if (requester.getGroup() != ADMIN && requester.getGroup() != USER)
-			throw new ForbiddenException();
+		if (requester == null)throw new NotAuthorizedException("You need to log in.");
+		if (requester.getGroup() != ADMIN && requester.getGroup() != USER) throw new ClientErrorException(403);
 		// end authenticate
 
 		try {
@@ -103,15 +101,13 @@ public class AuctionService {
 			
 
 			GenericEntity<List<Auction>> wrapper = new GenericEntity<List<Auction>>(Lists.newArrayList(auctionList)) {};
-			Annotation[] filterAnnotations = new Annotation[] { new Auction.XmlSellerAsEntityFilter.Literal(), new Auction.XmlBidsAsEntityFilter.Literal()};
+			Annotation[] filterAnnotations = new Annotation[] { new Auction.XmlSellerAsEntityFilter.Literal()};
 			return Response.ok().entity(wrapper, filterAnnotations).build();
 
 		}
 		catch (Exception exception) {
 			if (exception instanceof EntityNotFoundException)
-				throw new ClientErrorException(404);
-			if (exception instanceof ForbiddenException)
-				throw new ClientErrorException(403);
+				throw new ClientErrorException(404);	
 			if (exception instanceof NotAuthorizedException)
 				throw new ClientErrorException(401);
 			throw new InternalServerErrorException();
@@ -127,10 +123,8 @@ public class AuctionService {
 
 		// authenticate
 		final Person requester = LifeCycleProvider.authenticate(authentication);
-		if (requester == null)
-			throw new NotAuthorizedException("You need to log in.");
-		if (requester.getGroup() != ADMIN && requester.getGroup() != USER)
-			throw new ForbiddenException();
+		if (requester == null) throw new NotAuthorizedException("You need to log in.");
+		if (requester.getGroup() != ADMIN && requester.getGroup() != USER) throw new ForbiddenException();
 		// end authenticate
 
 		try {
@@ -146,7 +140,7 @@ public class AuctionService {
 
 		} catch (Exception exception) {
 			if (exception instanceof EntityNotFoundException)
-				throw new ClientErrorException(404);
+				
 			if (exception instanceof ForbiddenException)
 				throw new ClientErrorException(403);
 			if (exception instanceof NotAuthorizedException)
